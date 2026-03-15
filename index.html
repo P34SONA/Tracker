@@ -1438,14 +1438,14 @@ function creditCardForm(r) {
         <option value="paid" ${r?.status === 'paid' ? 'selected' : ''}>Paid</option>
         <option value="overdue" ${r?.status === 'overdue' ? 'selected' : ''}>Overdue</option>
       </select></div>
-    <div class="form-group"><label>Notes</label>
+    <div class="form-group"><label>Description</label>
       <textarea name="notes" placeholder="Optional notes...">${r?.notes || ''}</textarea></div>
   `;
 }
 
 function installmentForm(r) {
   return `
-    <div class="form-group"><label>Item / Description</label>
+    <div class="form-group"><label>Name</label>
       <input name="item" value="${r?.item || ''}" placeholder="e.g. iPhone 15, Laptop" /></div>
     <div class="form-group"><label>Merchant / Store</label>
       <input name="merchant" value="${r?.merchant || ''}" placeholder="e.g. Lazada, SM" /></div>
@@ -1472,7 +1472,7 @@ function installmentForm(r) {
           <option value="overdue" ${r?.status === 'overdue' ? 'selected' : ''}>Overdue</option>
         </select></div>
     </div>
-    <div class="form-group"><label>Notes</label>
+    <div class="form-group"><label>Description</label>
       <textarea name="notes" placeholder="Optional notes...">${r?.notes || ''}</textarea></div>
   `;
 }
