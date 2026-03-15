@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <link rel="icon" href="ledger.png">
+<link rel="icon" href="ledger.png">
 <style>
   :root {
     --bg:        #080C12;
@@ -36,704 +35,227 @@
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
-  body {
-    font-family: var(--sans);
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    font-size: 14px;
-    line-height: 1.6;
-  }
+  body { font-family: var(--sans); background: var(--bg); color: var(--text); min-height: 100vh; font-size: 14px; line-height: 1.6; }
 
-  /* ── MOVING GEOMETRY CANVAS ── */
-  #geo-canvas {
-    position: fixed;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 0;
-    opacity: 0.55;
-  }
+  #geo-canvas { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; opacity: 0.55; }
 
-  /* ── ANIMATIONS ── */
   @keyframes spin      { to { transform: rotate(360deg); } }
   @keyframes fadeSlide { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
-  @keyframes pulseGlow {
-    0%, 100% { box-shadow: 0 0 8px var(--cyan-glow); }
-    50%       { box-shadow: 0 0 20px rgba(255,255,255,0.28); }
-  }
-  @keyframes scanline {
-    0%   { transform: translateY(-100%); }
-    100% { transform: translateY(100vh); }
-  }
+  @keyframes pulseGlow { 0%,100%{box-shadow:0 0 8px var(--cyan-glow);}50%{box-shadow:0 0 20px rgba(255,255,255,0.28);} }
 
-  /* ── SCROLLBAR ── */
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: var(--bg2); }
-  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
-  ::-webkit-scrollbar-thumb:hover { background: var(--cyan-dim); }
+  ::-webkit-scrollbar{width:6px} ::-webkit-scrollbar-track{background:var(--bg2)} ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px} ::-webkit-scrollbar-thumb:hover{background:var(--cyan-dim)}
 
-  /* ══════════════════ LOGIN ══════════════════ */
-  .login-overlay {
-    position: fixed; inset: 0;
-    background: var(--bg);
-    display: flex; align-items: center; justify-content: center;
-    z-index: 100;
+  /* LOGIN */
+  .login-overlay{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:100}
+  .login-box{background:var(--surface);border:1px solid var(--border2);border-radius:4px;padding:48px 40px;width:380px;text-align:center;position:relative;box-shadow:0 0 40px rgba(255,255,255,0.08),inset 0 1px 0 rgba(255,255,255,0.1)}
+  .login-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--cyan),transparent)}
+  .login-box input{width:100%;padding:11px 14px;border:1px solid var(--border2);border-radius:4px;background:var(--bg2);font-family:var(--mono);font-size:13px;color:var(--text);margin-bottom:12px;outline:none;transition:border-color 0.2s,box-shadow 0.2s}
+  .login-box input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px var(--cyan-glow)}
+  .login-btn{width:100%;padding:12px;background:transparent;color:var(--cyan);border:1px solid var(--cyan);border-radius:4px;font-family:var(--mono);font-size:13px;font-weight:700;cursor:pointer;letter-spacing:1px;transition:all 0.2s;margin-top:4px;text-transform:uppercase}
+  .login-btn:hover{background:var(--cyan);color:var(--bg);box-shadow:0 0 20px rgba(255,255,255,0.3)}
+  .login-error{color:var(--red);font-size:11px;font-family:var(--mono);margin-top:8px;min-height:18px}
+
+  /* SETUP */
+  .setup-overlay{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:200}
+  .setup-box{background:var(--surface);border:1px solid var(--border2);border-radius:4px;padding:40px;width:460px;position:relative;box-shadow:0 0 40px rgba(255,255,255,0.08)}
+  .setup-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--cyan),transparent)}
+  .setup-box h2{font-family:var(--mono);font-size:18px;color:var(--cyan);margin-bottom:6px;letter-spacing:1px;text-transform:uppercase}
+  .setup-box p{font-size:13px;color:var(--text2);margin-bottom:24px;line-height:1.6}
+  .setup-box label{display:block;font-size:10px;font-weight:700;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;font-family:var(--mono)}
+  .setup-box input{width:100%;padding:10px 14px;border:1px solid var(--border2);border-radius:4px;background:var(--bg2);font-family:var(--mono);font-size:12px;color:var(--text);margin-bottom:16px;outline:none;transition:border-color 0.2s}
+  .setup-box input:focus{border-color:var(--cyan)}
+  .setup-note{font-size:12px;color:var(--text2);background:var(--bg2);border:1px solid var(--border);border-left:2px solid var(--cyan);border-radius:4px;padding:12px 14px;margin-bottom:20px;line-height:1.7}
+  .setup-note code{font-family:var(--mono);font-size:11px;background:var(--surface2);padding:1px 6px;border-radius:3px;color:var(--cyan)}
+
+  /* APP */
+  .app{display:none;min-height:100vh;position:relative;z-index:1}
+  .app.active{display:flex;flex-direction:column}
+
+  /* HEADER */
+  header{background:rgba(13,19,32,0.95);border-bottom:1px solid var(--border2);padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:10;backdrop-filter:blur(12px);box-shadow:0 1px 0 rgba(255,255,255,0.06)}
+  .logo{font-family:var(--mono);font-size:16px;font-weight:700;color:var(--cyan);letter-spacing:3px;text-transform:uppercase;text-shadow:0 0 16px rgba(255,255,255,0.4)}
+  .logo span{color:var(--text3);font-weight:400}
+  .header-right{display:flex;align-items:center;gap:14px}
+  .admin-badge{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--cyan);background:var(--cyan-glow);border:1px solid rgba(255,255,255,0.2);padding:4px 10px;border-radius:2px;font-family:var(--mono)}
+  .logout-btn{font-size:10px;font-family:var(--mono);color:var(--text3);background:none;border:1px solid var(--border2);padding:5px 12px;border-radius:3px;cursor:pointer;letter-spacing:1px;text-transform:uppercase;transition:all 0.2s}
+  .logout-btn:hover{border-color:var(--red);color:var(--red)}
+
+  /* SUMMARY BAR */
+  .summary-bar{background:var(--bg2);border-bottom:1px solid var(--border);padding:16px 32px;display:flex;gap:28px;align-items:center}
+  .summary-card{display:flex;flex-direction:column;gap:3px}
+  .summary-label{font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--text3);font-weight:700;font-family:var(--mono)}
+  .summary-value{font-family:var(--mono);font-size:20px;font-weight:700;color:var(--text)}
+  .summary-value.danger{color:var(--red);text-shadow:0 0 12px rgba(255,75,110,0.3)}
+  .summary-divider{width:1px;height:36px;background:var(--border2)}
+
+  /* ══ CREDIT LIMIT WIDGET (inline inside tab) ══ */
+  .tab-clw {
+    margin-bottom: 18px;
   }
-  .login-box {
+  .credit-card-widget {
+    flex: 1;
     background: var(--surface);
     border: 1px solid var(--border2);
-    border-radius: 4px;
-    padding: 48px 40px;
-    width: 380px;
-    text-align: center;
+    border-radius: 6px;
+    padding: 14px 18px 12px;
     position: relative;
-    box-shadow: 0 0 40px rgba(255,255,255,0.08), inset 0 1px 0 rgba(255,255,255,0.1);
-  }
-  .login-box::before {
-    content: '';
-    position: absolute; top: 0; left: 0; right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--cyan), transparent);
-  }
-  .login-box .brand {
-    font-family: var(--mono);
-    font-size: 26px;
-    font-weight: 700;
-    color: var(--cyan);
-    letter-spacing: 2px;
-    margin-bottom: 4px;
-    text-shadow: 0 0 20px rgba(255,255,255,0.5);
-  }
-  .login-box .brand-sub {
-    font-size: 10px;
-    color: var(--text3);
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    margin-bottom: 36px;
-    font-family: var(--mono);
-  }
-  .login-box input {
-    width: 100%;
-    padding: 11px 14px;
-    border: 1px solid var(--border2);
-    border-radius: 4px;
-    background: var(--bg2);
-    font-family: var(--mono);
-    font-size: 13px;
-    color: var(--text);
-    margin-bottom: 12px;
-    outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
-  }
-  .login-box input:focus { border-color: var(--cyan); box-shadow: 0 0 0 3px var(--cyan-glow); }
-  .login-btn {
-    width: 100%;
-    padding: 12px;
-    background: transparent;
-    color: var(--cyan);
-    border: 1px solid var(--cyan);
-    border-radius: 4px;
-    font-family: var(--mono);
-    font-size: 13px;
-    font-weight: 700;
-    cursor: pointer;
-    letter-spacing: 1px;
-    transition: all 0.2s;
-    margin-top: 4px;
-    text-transform: uppercase;
-  }
-  .login-btn:hover { background: var(--cyan); color: var(--bg); box-shadow: 0 0 20px rgba(255,255,255,0.3); }
-  .login-error {
-    color: var(--red);
-    font-size: 11px;
-    font-family: var(--mono);
-    margin-top: 8px;
-    min-height: 18px;
-  }
-
-  /* ══════════════════ SUPABASE SETUP ══════════════════ */
-  .setup-overlay {
-    position: fixed; inset: 0;
-    background: var(--bg);
-    display: flex; align-items: center; justify-content: center;
-    z-index: 200;
-  }
-  .setup-box {
-    background: var(--surface);
-    border: 1px solid var(--border2);
-    border-radius: 4px;
-    padding: 40px;
-    width: 460px;
-    position: relative;
-    box-shadow: 0 0 40px rgba(255,255,255,0.08);
-  }
-  .setup-box::before {
-    content: '';
-    position: absolute; top: 0; left: 0; right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--cyan), transparent);
-  }
-  .setup-box h2 {
-    font-family: var(--mono);
-    font-size: 18px;
-    color: var(--cyan);
-    margin-bottom: 6px;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-  }
-  .setup-box p {
-    font-size: 13px;
-    color: var(--text2);
-    margin-bottom: 24px;
-    line-height: 1.6;
-  }
-  .setup-box label {
-    display: block;
-    font-size: 10px;
-    font-weight: 700;
-    color: var(--text3);
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    margin-bottom: 6px;
-    font-family: var(--mono);
-  }
-  .setup-box input {
-    width: 100%;
-    padding: 10px 14px;
-    border: 1px solid var(--border2);
-    border-radius: 4px;
-    background: var(--bg2);
-    font-family: var(--mono);
-    font-size: 12px;
-    color: var(--text);
-    margin-bottom: 16px;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-  .setup-box input:focus { border-color: var(--cyan); }
-  .setup-note {
-    font-size: 12px;
-    color: var(--text2);
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-left: 2px solid var(--cyan);
-    border-radius: 4px;
-    padding: 12px 14px;
-    margin-bottom: 20px;
-    line-height: 1.7;
-  }
-  .setup-note code {
-    font-family: var(--mono);
-    font-size: 11px;
-    background: var(--surface2);
-    padding: 1px 6px;
-    border-radius: 3px;
-    color: var(--cyan);
-  }
-
-  /* ══════════════════ APP LAYOUT ══════════════════ */
-  .app { display: none; min-height: 100vh; position: relative; z-index: 1; }
-  .app.active { display: flex; flex-direction: column; }
-
-  /* ══════════════════ HEADER ══════════════════ */
-  header {
-    background: rgba(13,19,32,0.95);
-    border-bottom: 1px solid var(--border2);
-    padding: 0 32px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: 60px;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    backdrop-filter: blur(12px);
-    box-shadow: 0 1px 0 rgba(255,255,255,0.06);
-  }
-  .logo {
-    font-family: var(--mono);
-    font-size: 16px;
-    font-weight: 700;
-    color: var(--cyan);
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    text-shadow: 0 0 16px rgba(255,255,255,0.4);
-  }
-  .logo span { color: var(--text3); font-weight: 400; }
-  .header-right { display: flex; align-items: center; gap: 14px; }
-  .admin-badge {
-    font-size: 9px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--cyan);
-    background: var(--cyan-glow);
-    border: 1px solid rgba(255,255,255,0.2);
-    padding: 4px 10px;
-    border-radius: 2px;
-    font-family: var(--mono);
-  }
-  .logout-btn {
-    font-size: 10px;
-    font-family: var(--mono);
-    color: var(--text3);
-    background: none;
-    border: 1px solid var(--border2);
-    padding: 5px 12px;
-    border-radius: 3px;
-    cursor: pointer;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    transition: all 0.2s;
-  }
-  .logout-btn:hover { border-color: var(--red); color: var(--red); }
-
-  /* ══════════════════ SUMMARY BAR ══════════════════ */
-  .summary-bar {
-    background: var(--bg2);
-    border-bottom: 1px solid var(--border);
-    padding: 16px 32px;
-    display: flex;
-    gap: 28px;
-    align-items: center;
-  }
-  .summary-card { display: flex; flex-direction: column; gap: 3px; }
-  .summary-label {
-    font-size: 9px;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    color: var(--text3);
-    font-weight: 700;
-    font-family: var(--mono);
-  }
-  .summary-value {
-    font-family: var(--mono);
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--text);
-  }
-  .summary-value.danger { color: var(--red); text-shadow: 0 0 12px rgba(255,75,110,0.3); }
-  .summary-divider { width: 1px; height: 36px; background: var(--border2); }
-
-  /* ══════════════════ TABS ══════════════════ */
-  .tabs-container { padding: 20px 32px 0; }
-  .tabs {
-    display: flex;
-    gap: 2px;
-    border-bottom: 1px solid var(--border2);
-  }
-  .tab-btn {
-    padding: 10px 22px;
-    background: none;
-    border: none;
-    font-family: var(--mono);
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    color: var(--text3);
-    cursor: pointer;
-    border-bottom: 2px solid transparent;
-    margin-bottom: -1px;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .tab-btn:hover { color: var(--text2); }
-  .tab-btn.active {
-    color: var(--cyan);
-    border-bottom-color: var(--cyan);
-    text-shadow: 0 0 10px rgba(255,255,255,0.4);
-  }
-  .tab-count {
-    font-size: 9px;
-    background: var(--surface2);
-    color: var(--text3);
-    padding: 2px 7px;
-    border-radius: 2px;
-    font-weight: 700;
-    border: 1px solid var(--border2);
-  }
-  .tab-btn.active .tab-count {
-    background: var(--cyan-glow);
-    color: var(--cyan);
-    border-color: rgba(255,255,255,0.3);
-  }
-
-  /* ══════════════════ CONTENT ══════════════════ */
-  .content { padding: 22px 32px; flex: 1; }
-  .tab-panel { display: none; }
-  .tab-panel.active { display: block; }
-
-  /* ── SEARCH + TOTALS BAR ── */
-  .panel-toolbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    margin-bottom: 14px;
-    flex-wrap: wrap;
-  }
-  .search-wrap { position: relative; flex: 1; max-width: 300px; }
-  .search-wrap svg {
-    position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
-    width: 13px; height: 13px; color: var(--text3); pointer-events: none;
-  }
-  .search-input {
-    width: 100%;
-    padding: 8px 12px 8px 32px;
-    border: 1px solid var(--border2);
-    border-radius: 3px;
-    background: var(--bg2);
-    font-family: var(--mono);
-    font-size: 12px;
-    color: var(--text);
-    outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
-  }
-  .search-input:focus { border-color: var(--cyan); box-shadow: 0 0 0 3px var(--cyan-glow2); }
-  .search-input::placeholder { color: var(--text3); }
-  .tab-totals { display: flex; gap: 18px; align-items: center; flex-shrink: 0; }
-  .tab-total-item { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
-  .tab-total-label {
-    font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px;
-    color: var(--text3); font-weight: 700; font-family: var(--mono);
-  }
-  .tab-total-value {
-    font-family: var(--mono); font-size: 14px; font-weight: 700; color: var(--text);
-  }
-  .tab-total-value.red { color: var(--red); }
-  .tab-total-value.green { color: var(--green); }
-  .tab-totals-divider { width: 1px; height: 26px; background: var(--border2); }
-
-  /* ── SECTION HEADER ── */
-  .section-header {
-    display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;
-  }
-  .section-title {
-    font-family: var(--mono);
-    font-size: 13px;
-    color: var(--cyan);
-    font-weight: 700;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    text-shadow: 0 0 10px rgba(255,255,255,0.3);
-  }
-  .section-title small {
-    font-family: var(--sans);
-    font-size: 12px;
-    color: var(--text3);
-    font-weight: 400;
-    margin-left: 10px;
-    text-transform: none;
-    letter-spacing: 0;
-    text-shadow: none;
-  }
-  .add-btn {
-    padding: 8px 16px;
-    background: transparent;
-    color: var(--cyan);
-    border: 1px solid var(--cyan);
-    border-radius: 3px;
-    font-family: var(--mono);
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex; align-items: center; gap: 6px;
-  }
-  .add-btn:hover { background: var(--cyan); color: var(--bg); box-shadow: 0 0 16px rgba(255,255,255,0.25); }
-
-  /* ══════════════════ TABLE ══════════════════ */
-  .table-wrap {
-    background: var(--surface);
-    border: 1px solid var(--border2);
-    border-radius: 4px;
     overflow: hidden;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+    min-width: 0;
+    transition: border-color 0.3s;
   }
-  table { width: 100%; border-collapse: collapse; }
-  thead th {
-    background: var(--bg3);
-    padding: 10px 14px;
-    text-align: center;
-    font-size: 9px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    color: var(--text3);
-    border-bottom: 1px solid var(--border2);
-    font-family: var(--mono);
-  }
-  tbody tr {
-    border-bottom: 1px solid var(--border);
-    transition: background 0.12s;
-  }
-  tbody tr:last-child { border-bottom: none; }
-  tbody tr:hover { background: rgba(255,255,255,0.04); }
-  td {
-    padding: 12px 14px;
-    font-size: 12px;
-    color: var(--text2);
-    vertical-align: middle;
-    text-align: center;
-    font-family: var(--mono);
-  }
-  .amount-cell { font-weight: 700; color: var(--red); }
-  .paid-cell   { font-weight: 700; color: var(--green); }
-  .balance-cell{ font-weight: 700; color: var(--cyan); }
-
-  .status-badge {
-    display: inline-block;
-    padding: 3px 10px;
-    border-radius: 2px;
-    font-size: 9px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    font-family: var(--mono);
-  }
-  .status-unpaid  { background: rgba(255,75,110,0.12);  color: var(--red);   border: 1px solid rgba(255,75,110,0.25); }
-  .status-partial { background: rgba(255,181,71,0.12);  color: var(--amber); border: 1px solid rgba(255,181,71,0.25); }
-  .status-paid    { background: rgba(0,229,160,0.1);    color: var(--green); border: 1px solid rgba(0,229,160,0.2); }
-  .status-overdue { background: rgba(255,75,110,0.2);   color: #FF7A96;      border: 1px solid rgba(255,75,110,0.4); }
-
-  .action-btns { display: flex; gap: 6px; justify-content: center; }
-  .edit-btn, .del-btn {
-    padding: 4px 10px;
-    border-radius: 3px;
-    font-size: 9px;
-    font-family: var(--mono);
-    cursor: pointer;
-    border: 1px solid;
-    transition: all 0.15s;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-  }
-  .edit-btn { background: none; border-color: var(--border2); color: var(--text3); }
-  .edit-btn:hover { border-color: var(--cyan); color: var(--cyan); background: var(--cyan-glow2); }
-  .del-btn  { background: none; border-color: transparent; color: var(--border2); }
-  .del-btn:hover { background: rgba(255,75,110,0.1); color: var(--red); border-color: rgba(255,75,110,0.3); }
-
-  /* ══════════════════ BULK DELETE ══════════════════ */
-  .bulk-bar {
-    display: none;
-    align-items: center;
-    gap: 12px;
-    background: rgba(255,75,110,0.08);
-    border: 1px solid rgba(255,75,110,0.3);
-    border-radius: 4px;
-    padding: 9px 14px;
-    margin-bottom: 12px;
-    animation: fadeSlide 0.2s ease;
-  }
-  .bulk-bar.visible { display: flex; }
-  .bulk-info { font-size: 11px; color: var(--red); font-weight: 700; flex: 1; font-family: var(--mono); letter-spacing: 0.5px; }
-  .bulk-del-btn {
-    padding: 6px 14px;
-    background: var(--red);
-    color: var(--bg);
-    border: none;
-    border-radius: 3px;
-    font-family: var(--mono);
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .bulk-del-btn:hover { background: #FF7A96; box-shadow: 0 0 14px rgba(255,75,110,0.3); }
-  .bulk-cancel-btn {
-    padding: 6px 12px;
-    background: none;
-    border: 1px solid rgba(255,75,110,0.3);
-    border-radius: 3px;
-    font-family: var(--mono);
-    font-size: 10px;
-    color: var(--red);
-    cursor: pointer;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    transition: all 0.15s;
-  }
-  .bulk-cancel-btn:hover { background: rgba(255,75,110,0.1); }
-
-  /* ── ROW CHECKBOX ── */
-  .row-check { width: 14px; height: 14px; cursor: pointer; accent-color: var(--cyan); flex-shrink: 0; }
-  thead th.check-col, td.check-col { width: 38px; padding: 10px 6px 10px 14px; }
-  tr.selected-row { background: rgba(255,255,255,0.06) !important; }
-
-  .empty-state { text-align: center; padding: 48px 24px; color: var(--text3); }
-  .empty-state p { font-size: 12px; margin-top: 8px; font-family: var(--mono); }
-  .empty-icon { font-size: 28px; margin-bottom: 8px; opacity: 0.3; }
-
-  /* ══════════════════ MODAL ══════════════════ */
-  .modal-backdrop {
-    position: fixed; inset: 0;
-    background: rgba(4,8,16,0.75);
-    backdrop-filter: blur(4px);
-    display: flex; align-items: center; justify-content: center;
-    z-index: 50;
-    opacity: 0; pointer-events: none;
-    transition: opacity 0.2s;
-  }
-  .modal-backdrop.open { opacity: 1; pointer-events: all; }
-  .modal {
-    background: var(--surface);
-    border-radius: 4px;
-    padding: 32px;
-    width: 480px;
-    max-width: 95vw;
-    max-height: 90vh;
-    overflow-y: auto;
-    transform: translateY(10px);
-    transition: transform 0.2s;
-    border: 1px solid var(--border2);
-    box-shadow: 0 0 60px rgba(0,0,0,0.5), 0 0 30px rgba(255,255,255,0.05);
-    position: relative;
-  }
-  .modal::before {
+  .credit-card-widget::before {
     content: '';
-    position: absolute; top: 0; left: 0; right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--green), transparent);
+    transition: all 0.3s;
   }
-  .modal-backdrop.open .modal { transform: translateY(0); }
-  .modal h3 {
-    font-family: var(--mono);
-    font-size: 14px;
-    color: var(--cyan);
-    margin-bottom: 22px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    text-shadow: 0 0 10px rgba(255,255,255,0.3);
-  }
-  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .form-group { margin-bottom: 14px; }
-  .form-group label {
-    display: block;
-    font-size: 9px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    color: var(--text3);
-    margin-bottom: 6px;
-    font-family: var(--mono);
-  }
-  .form-group input,
-  .form-group select,
-  .form-group textarea {
-    width: 100%;
-    padding: 9px 12px;
-    border: 1px solid var(--border2);
-    border-radius: 3px;
-    background: var(--bg2);
-    font-family: var(--mono);
-    font-size: 12px;
-    color: var(--text);
-    outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
-  }
-  .form-group input:focus,
-  .form-group select:focus,
-  .form-group textarea:focus { border-color: var(--cyan); box-shadow: 0 0 0 3px var(--cyan-glow2); }
-  .form-group select { color-scheme: dark; }
-  .form-group textarea { resize: vertical; min-height: 72px; }
-  .modal-actions {
-    display: flex; justify-content: flex-end; gap: 10px;
-    margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border);
-  }
-  .cancel-btn {
-    padding: 9px 18px;
-    background: none;
-    border: 1px solid var(--border2);
-    border-radius: 3px;
-    font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    color: var(--text3);
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .cancel-btn:hover { border-color: var(--text3); color: var(--text2); }
-  .save-btn {
-    padding: 9px 20px;
-    background: transparent;
-    color: var(--cyan);
-    border: 1px solid var(--cyan);
-    border-radius: 3px;
-    font-family: var(--mono);
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .save-btn:hover { background: var(--cyan); color: var(--bg); box-shadow: 0 0 16px rgba(255,255,255,0.25); }
+  .credit-card-widget.warn  { border-color: rgba(255,181,71,0.35); }
+  .credit-card-widget.warn::before  { background: linear-gradient(90deg, transparent, var(--amber), transparent); }
+  .credit-card-widget.danger{ border-color: rgba(255,75,110,0.4); }
+  .credit-card-widget.danger::before{ background: linear-gradient(90deg, transparent, var(--red), transparent); }
 
-  /* ══════════════════ TOAST ══════════════════ */
-  .toast {
-    position: fixed; bottom: 24px; right: 24px;
-    background: var(--surface2);
-    color: var(--cyan);
-    border: 1px solid rgba(255,255,255,0.3);
-    padding: 11px 18px;
-    border-radius: 3px;
-    font-size: 11px;
-    font-family: var(--mono);
-    letter-spacing: 0.5px;
-    opacity: 0; transform: translateY(8px);
-    transition: all 0.3s; z-index: 999; pointer-events: none;
-    box-shadow: 0 0 20px rgba(255,255,255,0.1);
-  }
-  .toast.show { opacity: 1; transform: translateY(0); }
-  .toast.error { color: var(--red); border-color: rgba(255,75,110,0.3); box-shadow: 0 0 20px rgba(255,75,110,0.1); }
+  .ccw-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .ccw-name { font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--text2); }
+  .ccw-limit-badge { font-family: var(--mono); font-size: 9px; font-weight: 700; letter-spacing: 1px; color: var(--text3); background: var(--bg2); border: 1px solid var(--border2); padding: 2px 8px; border-radius: 2px; }
 
-  /* ══════════════════ LOADING / SPINNER ══════════════════ */
-  .loading {
-    display: flex; align-items: center; justify-content: center;
-    padding: 40px; color: var(--text3); font-size: 11px; gap: 10px; font-family: var(--mono);
-  }
-  .spinner {
-    width: 16px; height: 16px;
-    border: 2px solid var(--border2);
-    border-top-color: var(--cyan);
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
-  }
+  .ccw-row { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 10px; gap: 12px; }
+  .ccw-col { display: flex; flex-direction: column; gap: 2px; }
+  .ccw-col-label { font-family: var(--mono); font-size: 8px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text3); }
+  .ccw-col-val { font-family: var(--mono); font-size: 20px; font-weight: 700; line-height: 1; }
+  .ccw-col-val.red   { color: var(--red); }
+  .ccw-col-val.green { color: var(--green); }
+  .ccw-col-val.amber { color: var(--amber); }
+  .ccw-col-val.small { font-size: 14px; color: var(--text2); }
 
-  /* ══════════════════ DB STATUS ══════════════════ */
-  .db-status {
-    display: inline-flex; align-items: center; gap: 6px;
-    font-size: 9px; font-family: var(--mono);
-    color: var(--text3); letter-spacing: 1px; text-transform: uppercase;
-    padding: 4px 10px;
-    background: var(--bg2);
-    border: 1px solid var(--border2);
-    border-radius: 2px;
-  }
-  .db-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border2); }
-  .db-dot.connected {
-    background: var(--green);
-    box-shadow: 0 0 6px rgba(0,229,160,0.6);
-    animation: pulseGlow 2s ease-in-out infinite;
-  }
-  .db-dot.error { background: var(--red); }
+  .ccw-progress-wrap { height: 4px; background: var(--border2); border-radius: 2px; overflow: hidden; margin-bottom: 8px; }
+  .ccw-progress-fill { height: 100%; border-radius: 2px; background: var(--green); transition: width 0.6s ease, background 0.3s; }
+  .ccw-progress-fill.warn   { background: var(--amber); }
+  .ccw-progress-fill.danger { background: var(--red); }
 
-  @media (max-width: 768px) {
-    header, .summary-bar, .tabs-container, .content { padding-left: 16px; padding-right: 16px; }
-    .form-row { grid-template-columns: 1fr; }
-    .summary-bar { flex-wrap: wrap; gap: 12px; }
-    table { display: block; overflow-x: auto; }
+  .ccw-footer { display: flex; justify-content: space-between; align-items: center; }
+  .ccw-pct { font-family: var(--mono); font-size: 10px; font-weight: 700; }
+  .ccw-pct.ok     { color: var(--green); }
+  .ccw-pct.warn   { color: var(--amber); }
+  .ccw-pct.danger { color: var(--red); }
+  .ccw-status-tag { font-family: var(--mono); font-size: 9px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 2px 8px; border-radius: 2px; }
+  .ccw-status-tag.ok     { background: rgba(0,229,160,0.1);   color: var(--green); border: 1px solid rgba(0,229,160,0.25); }
+  .ccw-status-tag.warn   { background: rgba(255,181,71,0.12); color: var(--amber); border: 1px solid rgba(255,181,71,0.3); }
+  .ccw-status-tag.danger { background: rgba(255,75,110,0.12); color: var(--red);   border: 1px solid rgba(255,75,110,0.3); }
+
+  /* TABS */
+  .tabs-container{padding:20px 32px 0}
+  .tabs{display:flex;gap:2px;border-bottom:1px solid var(--border2)}
+  .tab-btn{padding:10px 22px;background:none;border:none;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all 0.2s;display:flex;align-items:center;gap:8px}
+  .tab-btn:hover{color:var(--text2)}
+  .tab-btn.active{color:var(--cyan);border-bottom-color:var(--cyan);text-shadow:0 0 10px rgba(255,255,255,0.4)}
+  .tab-count{font-size:9px;background:var(--surface2);color:var(--text3);padding:2px 7px;border-radius:2px;font-weight:700;border:1px solid var(--border2)}
+  .tab-btn.active .tab-count{background:var(--cyan-glow);color:var(--cyan);border-color:rgba(255,255,255,0.3)}
+
+  /* CONTENT */
+  .content{padding:22px 32px;flex:1}
+  .tab-panel{display:none}
+  .tab-panel.active{display:block}
+
+  .panel-toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:14px;flex-wrap:wrap}
+  .search-wrap{position:relative;flex:1;max-width:300px}
+  .search-wrap svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:13px;height:13px;color:var(--text3);pointer-events:none}
+  .search-input{width:100%;padding:8px 12px 8px 32px;border:1px solid var(--border2);border-radius:3px;background:var(--bg2);font-family:var(--mono);font-size:12px;color:var(--text);outline:none;transition:border-color 0.2s,box-shadow 0.2s}
+  .search-input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px var(--cyan-glow2)}
+  .search-input::placeholder{color:var(--text3)}
+  .tab-totals{display:flex;gap:18px;align-items:center;flex-shrink:0}
+  .tab-total-item{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+  .tab-total-label{font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text3);font-weight:700;font-family:var(--mono)}
+  .tab-total-value{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--text)}
+  .tab-total-value.red{color:var(--red)}
+  .tab-total-value.green{color:var(--green)}
+  .tab-totals-divider{width:1px;height:26px;background:var(--border2)}
+
+  .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+  .section-title{font-family:var(--mono);font-size:13px;color:var(--cyan);font-weight:700;letter-spacing:1px;text-transform:uppercase;text-shadow:0 0 10px rgba(255,255,255,0.3)}
+  .section-title small{font-family:var(--sans);font-size:12px;color:var(--text3);font-weight:400;margin-left:10px;text-transform:none;letter-spacing:0;text-shadow:none}
+  .add-btn{padding:8px 16px;background:transparent;color:var(--cyan);border:1px solid var(--cyan);border-radius:3px;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:6px}
+  .add-btn:hover{background:var(--cyan);color:var(--bg);box-shadow:0 0 16px rgba(255,255,255,0.25)}
+
+  /* TABLE */
+  .table-wrap{background:var(--surface);border:1px solid var(--border2);border-radius:4px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.3)}
+  table{width:100%;border-collapse:collapse}
+  thead th{background:var(--bg3);padding:10px 14px;text-align:center;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--text3);border-bottom:1px solid var(--border2);font-family:var(--mono)}
+  tbody tr{border-bottom:1px solid var(--border);transition:background 0.12s}
+  tbody tr:last-child{border-bottom:none}
+  tbody tr:hover{background:rgba(255,255,255,0.04)}
+  td{padding:12px 14px;font-size:12px;color:var(--text2);vertical-align:middle;text-align:center;font-family:var(--mono)}
+  .amount-cell{font-weight:700;color:var(--red)}
+  .paid-cell{font-weight:700;color:var(--green)}
+  .balance-cell{font-weight:700;color:var(--cyan)}
+
+  .status-badge{display:inline-block;padding:3px 10px;border-radius:2px;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;font-family:var(--mono)}
+  .status-unpaid {background:rgba(255,75,110,0.12);color:var(--red);border:1px solid rgba(255,75,110,0.25)}
+  .status-partial{background:rgba(255,181,71,0.12);color:var(--amber);border:1px solid rgba(255,181,71,0.25)}
+  .status-paid   {background:rgba(0,229,160,0.1);color:var(--green);border:1px solid rgba(0,229,160,0.2)}
+  .status-overdue{background:rgba(255,75,110,0.2);color:#FF7A96;border:1px solid rgba(255,75,110,0.4)}
+
+  .action-btns{display:flex;gap:6px;justify-content:center}
+  .edit-btn,.del-btn{padding:4px 10px;border-radius:3px;font-size:9px;font-family:var(--mono);cursor:pointer;border:1px solid;transition:all 0.15s;font-weight:700;letter-spacing:0.5px;text-transform:uppercase}
+  .edit-btn{background:none;border-color:var(--border2);color:var(--text3)}
+  .edit-btn:hover{border-color:var(--cyan);color:var(--cyan);background:var(--cyan-glow2)}
+  .del-btn{background:none;border-color:transparent;color:var(--border2)}
+  .del-btn:hover{background:rgba(255,75,110,0.1);color:var(--red);border-color:rgba(255,75,110,0.3)}
+
+  /* BULK DELETE */
+  .bulk-bar{display:none;align-items:center;gap:12px;background:rgba(255,75,110,0.08);border:1px solid rgba(255,75,110,0.3);border-radius:4px;padding:9px 14px;margin-bottom:12px;animation:fadeSlide 0.2s ease}
+  .bulk-bar.visible{display:flex}
+  .bulk-info{font-size:11px;color:var(--red);font-weight:700;flex:1;font-family:var(--mono);letter-spacing:0.5px}
+  .bulk-del-btn{padding:6px 14px;background:var(--red);color:var(--bg);border:none;border-radius:3px;font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all 0.15s}
+  .bulk-del-btn:hover{background:#FF7A96;box-shadow:0 0 14px rgba(255,75,110,0.3)}
+  .bulk-cancel-btn{padding:6px 12px;background:none;border:1px solid rgba(255,75,110,0.3);border-radius:3px;font-family:var(--mono);font-size:10px;color:var(--red);cursor:pointer;letter-spacing:0.5px;text-transform:uppercase;transition:all 0.15s}
+  .bulk-cancel-btn:hover{background:rgba(255,75,110,0.1)}
+
+  .row-check{width:14px;height:14px;cursor:pointer;accent-color:var(--cyan);flex-shrink:0}
+  thead th.check-col,td.check-col{width:38px;padding:10px 6px 10px 14px}
+  tr.selected-row{background:rgba(255,255,255,0.06)!important}
+
+  .empty-state{text-align:center;padding:48px 24px;color:var(--text3)}
+  .empty-state p{font-size:12px;margin-top:8px;font-family:var(--mono)}
+  .empty-icon{font-size:28px;margin-bottom:8px;opacity:0.3}
+
+  /* MODAL */
+  .modal-backdrop{position:fixed;inset:0;background:rgba(4,8,16,0.75);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:50;opacity:0;pointer-events:none;transition:opacity 0.2s}
+  .modal-backdrop.open{opacity:1;pointer-events:all}
+  .modal{background:var(--surface);border-radius:4px;padding:32px;width:480px;max-width:95vw;max-height:90vh;overflow-y:auto;transform:translateY(10px);transition:transform 0.2s;border:1px solid var(--border2);box-shadow:0 0 60px rgba(0,0,0,0.5),0 0 30px rgba(255,255,255,0.05);position:relative}
+  .modal::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--cyan),transparent)}
+  .modal-backdrop.open .modal{transform:translateY(0)}
+  .modal h3{font-family:var(--mono);font-size:14px;color:var(--cyan);margin-bottom:22px;letter-spacing:2px;text-transform:uppercase;text-shadow:0 0 10px rgba(255,255,255,0.3)}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .form-group{margin-bottom:14px}
+  .form-group label{display:block;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--text3);margin-bottom:6px;font-family:var(--mono)}
+  .form-group input,.form-group select,.form-group textarea{width:100%;padding:9px 12px;border:1px solid var(--border2);border-radius:3px;background:var(--bg2);font-family:var(--mono);font-size:12px;color:var(--text);outline:none;transition:border-color 0.2s,box-shadow 0.2s}
+  .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--cyan);box-shadow:0 0 0 3px var(--cyan-glow2)}
+  .form-group select{color-scheme:dark}
+  .form-group textarea{resize:vertical;min-height:72px}
+  .modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px;padding-top:16px;border-top:1px solid var(--border)}
+  .cancel-btn{padding:9px 18px;background:none;border:1px solid var(--border2);border-radius:3px;font-family:var(--mono);font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--text3);cursor:pointer;transition:all 0.15s}
+  .cancel-btn:hover{border-color:var(--text3);color:var(--text2)}
+  .save-btn{padding:9px 20px;background:transparent;color:var(--cyan);border:1px solid var(--cyan);border-radius:3px;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all 0.2s}
+  .save-btn:hover{background:var(--cyan);color:var(--bg);box-shadow:0 0 16px rgba(255,255,255,0.25)}
+
+  /* TOAST */
+  .toast{position:fixed;bottom:24px;right:24px;background:var(--surface2);color:var(--cyan);border:1px solid rgba(255,255,255,0.3);padding:11px 18px;border-radius:3px;font-size:11px;font-family:var(--mono);letter-spacing:0.5px;opacity:0;transform:translateY(8px);transition:all 0.3s;z-index:999;pointer-events:none;box-shadow:0 0 20px rgba(255,255,255,0.1)}
+  .toast.show{opacity:1;transform:translateY(0)}
+  .toast.error{color:var(--red);border-color:rgba(255,75,110,0.3);box-shadow:0 0 20px rgba(255,75,110,0.1)}
+
+  .loading{display:flex;align-items:center;justify-content:center;padding:40px;color:var(--text3);font-size:11px;gap:10px;font-family:var(--mono)}
+  .spinner{width:16px;height:16px;border:2px solid var(--border2);border-top-color:var(--cyan);border-radius:50%;animation:spin 0.7s linear infinite}
+
+  .db-status{display:inline-flex;align-items:center;gap:6px;font-size:9px;font-family:var(--mono);color:var(--text3);letter-spacing:1px;text-transform:uppercase;padding:4px 10px;background:var(--bg2);border:1px solid var(--border2);border-radius:2px}
+  .db-dot{width:6px;height:6px;border-radius:50%;background:var(--border2)}
+  .db-dot.connected{background:var(--green);box-shadow:0 0 6px rgba(0,229,160,0.6);animation:pulseGlow 2s ease-in-out infinite}
+  .db-dot.error{background:var(--red)}
+
+  @media(max-width:768px){
+    header,.summary-bar,.tabs-container,.content{padding-left:16px;padding-right:16px}
+    .form-row{grid-template-columns:1fr}
+    .summary-bar{flex-wrap:wrap;gap:12px}
+    table{display:block;overflow-x:auto}
   }
 </style>
 </head>
@@ -744,22 +266,15 @@
 <div class="setup-overlay" id="setupOverlay">
   <div class="setup-box">
     <h2>Connect to Supabase</h2>
-<p>Enter your Supabase project credentials to get started. Your data will be stored securely in your own database.</p>
-    <!--    <div class="setup-note">
-      Create the required tables in your Supabase SQL Editor:<br><br>
-      <code>credit_cards</code> — for Unionbank, Maya, TikTok records<br>
-      <code>installments</code> — for installment transactions<br><br>
-      Copy the SQL schema from below and run it in your Supabase dashboard.
-    </div>
-    -->
+    <p>Enter your Supabase project credentials to get started. Your data will be stored securely in your own database.</p>
     <label>URL</label>
     <input type="text" id="sbUrl" placeholder="API URL" />
     <label>Supabase Anon Key</label>
-    <input type="text" id="sbKey" placeholder="API URL" />
-    <button class="login-btn" onclick="initSupabase()" style="margin-top: 0;">Connect & Initialize</button>
+    <input type="text" id="sbKey" placeholder="API Key" />
+    <button class="login-btn" onclick="initSupabase()" style="margin-top:0">Connect & Initialize</button>
     <div id="setupError" class="login-error"></div>
-    <div style="margin-top: 16px; border-top: 1px solid var(--border); padding-top: 16px;">
-      <button class="cancel-btn" onclick="skipSupabase()" style="width:100%; text-align:center; font-family:var(--mono); font-size:10px; letter-spacing:1px; text-transform:uppercase;">[ USE LOCAL STORAGE — DEMO MODE ]</button>
+    <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px">
+      <button class="cancel-btn" onclick="skipSupabase()" style="width:100%;text-align:center;font-family:var(--mono);font-size:10px;letter-spacing:1px;text-transform:uppercase">[ USE LOCAL STORAGE — DEMO MODE ]</button>
     </div>
   </div>
 </div>
@@ -767,15 +282,11 @@
 <!-- LOGIN -->
 <div class="login-overlay" id="loginOverlay" style="display:none">
   <div class="login-box">
-    
-  <!--  <div class="brand">Debt<span style="color:var(--cyan)">Ledger</span></div>
-    <div class="brand-sub">// AI Debt Intelligence System</div>
-    -->
     <input type="text" id="loginUser" placeholder="Username" />
     <input type="password" id="loginPass" placeholder="Password" />
     <button class="login-btn" onclick="doLogin()">Sign In</button>
     <div class="login-error" id="loginError"></div>
-    <div style="margin-top: 16px; font-size: 10px; color: var(--text3); font-family: var(--mono); letter-spacing: 1px;">DEFAULT: Admin / admin123</div>
+    <div style="margin-top:16px;font-size:10px;color:var(--text3);font-family:var(--mono);letter-spacing:1px">DEFAULT: Admin / admin123</div>
   </div>
 </div>
 
@@ -784,51 +295,29 @@
   <header>
     <div class="logo">💳 Cards<span>Ledger</span></div>
     <div class="header-right">
-      <div class="db-status">
-        <div class="db-dot" id="dbDot"></div>
-        <span id="dbStatus">Local</span>
-      </div>
+      <div class="db-status"><div class="db-dot" id="dbDot"></div><span id="dbStatus">Local</span></div>
       <span class="admin-badge">Admin</span>
       <button class="logout-btn" onclick="doLogout()">Sign Out</button>
     </div>
   </header>
 
+  <!-- GLOBAL SUMMARY -->
   <div class="summary-bar" id="summaryBar">
-    <div class="summary-card">
-      <span class="summary-label">Total Debt</span>
-      <span class="summary-value danger" id="totalDebt">₱0.00</span>
-    </div>
+    <div class="summary-card"><span class="summary-label">Total Debt</span><span class="summary-value danger" id="totalDebt">₱0.00</span></div>
     <div class="summary-divider"></div>
-    <div class="summary-card">
-      <span class="summary-label">Total Paid</span>
-      <span class="summary-value" id="totalPaid">₱0.00</span>
-    </div>
+    <div class="summary-card"><span class="summary-label">Total Paid</span><span class="summary-value" id="totalPaid">₱0.00</span></div>
     <div class="summary-divider"></div>
-    <div class="summary-card">
-      <span class="summary-label">Remaining Balance</span>
-      <span class="summary-value danger" id="totalBalance">₱0.00</span>
-    </div>
+    <div class="summary-card"><span class="summary-label">Remaining Balance</span><span class="summary-value danger" id="totalBalance">₱0.00</span></div>
     <div class="summary-divider"></div>
-    <div class="summary-card">
-      <span class="summary-label">Total Entries</span>
-      <span class="summary-value" id="totalEntries">0</span>
-    </div>
+    <div class="summary-card"><span class="summary-label">Total Entries</span><span class="summary-value" id="totalEntries">0</span></div>
   </div>
 
   <div class="tabs-container">
     <div class="tabs">
-      <button class="tab-btn active" onclick="switchTab('unionbank')">
-        Unionbank <span class="tab-count" id="countUnionbank">0</span>
-      </button>
-      <button class="tab-btn" onclick="switchTab('maya')">
-        Maya <span class="tab-count" id="countMaya">0</span>
-      </button>
-      <button class="tab-btn" onclick="switchTab('tiktok')">
-        TikTok <span class="tab-count" id="countTiktok">0</span>
-      </button>
-      <button class="tab-btn" onclick="switchTab('installments')">
-        Installments <span class="tab-count" id="countInstallments">0</span>
-      </button>
+      <button class="tab-btn active" onclick="switchTab('unionbank')">Unionbank <span class="tab-count" id="countUnionbank">0</span></button>
+      <button class="tab-btn" onclick="switchTab('maya')">Maya <span class="tab-count" id="countMaya">0</span></button>
+      <button class="tab-btn" onclick="switchTab('tiktok')">TikTok <span class="tab-count" id="countTiktok">0</span></button>
+      <button class="tab-btn" onclick="switchTab('installments')">Installments <span class="tab-count" id="countInstallments">0</span></button>
     </div>
   </div>
 
@@ -839,26 +328,42 @@
         <div class="section-title">Unionbank Credit Card <small>Manage your Unionbank charges</small></div>
         <button class="add-btn" onclick="openModal('unionbank')">+ Add Entry</button>
       </div>
+
+      <!-- Unionbank Credit Limit Widget -->
+      <div class="credit-card-widget tab-clw" id="clw-unionbank">
+        <div class="ccw-header">
+          <span class="ccw-name">🏦 Unionbank — Credit Limit Overview</span>
+          <span class="ccw-limit-badge">Limit: ₱20,000.00</span>
+        </div>
+        <div class="ccw-row">
+          <div class="ccw-col">
+            <span class="ccw-col-label">Outstanding Balance</span>
+            <span class="ccw-col-val red" id="clw-used-unionbank">₱0.00</span>
+          </div>
+          <div class="ccw-col" style="align-items:flex-end">
+            <span class="ccw-col-label">Available Credit</span>
+            <span class="ccw-col-val green" id="clw-avail-unionbank">₱20,000.00</span>
+          </div>
+        </div>
+        <div class="ccw-progress-wrap">
+          <div class="ccw-progress-fill" id="clw-bar-unionbank" style="width:0%"></div>
+        </div>
+        <div class="ccw-footer">
+          <span class="ccw-pct ok" id="clw-pct-unionbank">0.0% utilized</span>
+          <span class="ccw-status-tag ok" id="clw-tag-unionbank">Good Standing</span>
+        </div>
+      </div>
       <div class="panel-toolbar">
         <div class="search-wrap">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
           <input class="search-input" id="search-unionbank" placeholder="Search name or Description…" oninput="filterTable('unionbank', this.value)" />
         </div>
         <div class="tab-totals">
-          <div class="tab-total-item">
-            <span class="tab-total-label">Total Debt</span>
-            <span class="tab-total-value red" id="tabtotal-debt-unionbank">₱0.00</span>
-          </div>
+          <div class="tab-total-item"><span class="tab-total-label">Total Debt</span><span class="tab-total-value red" id="tabtotal-debt-unionbank">₱0.00</span></div>
           <div class="tab-totals-divider"></div>
-          <div class="tab-total-item">
-            <span class="tab-total-label">Total Paid</span>
-            <span class="tab-total-value green" id="tabtotal-paid-unionbank">₱0.00</span>
-          </div>
+          <div class="tab-total-item"><span class="tab-total-label">Total Paid</span><span class="tab-total-value green" id="tabtotal-paid-unionbank">₱0.00</span></div>
           <div class="tab-totals-divider"></div>
-          <div class="tab-total-item">
-            <span class="tab-total-label">Remaining</span>
-            <span class="tab-total-value red" id="tabtotal-balance-unionbank">₱0.00</span>
-          </div>
+          <div class="tab-total-item"><span class="tab-total-label">Remaining</span><span class="tab-total-value red" id="tabtotal-balance-unionbank">₱0.00</span></div>
         </div>
       </div>
       <div class="bulk-bar" id="bulk-unionbank">
@@ -866,20 +371,13 @@
         <button class="bulk-cancel-btn" onclick="clearSelection('unionbank')">Cancel</button>
         <button class="bulk-del-btn" onclick="bulkDelete('unionbank')">Delete Selected</button>
       </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th class="check-col"><input type="checkbox" class="row-check" id="checkall-unionbank" onchange="toggleSelectAll('unionbank', this.checked)" /></th>
-              <th>Name</th><th>Date</th><th>Amount</th><th>Paid</th>
-              <th>Balance</th><th>Due Date</th><th>Status</th><th>Description</th><th></th>
-            </tr>
-          </thead>
-          <tbody id="tbody-unionbank">
-            <tr><td colspan="10"><div class="loading"><div class="spinner"></div> Loading...</div></td></tr>
-          </tbody>
-        </table>
-      </div>
+      <div class="table-wrap"><table>
+        <thead><tr>
+          <th class="check-col"><input type="checkbox" class="row-check" id="checkall-unionbank" onchange="toggleSelectAll('unionbank', this.checked)" /></th>
+          <th>Name</th><th>Date</th><th>Amount</th><th>Paid</th><th>Balance</th><th>Due Date</th><th>Status</th><th>Description</th><th></th>
+        </tr></thead>
+        <tbody id="tbody-unionbank"><tr><td colspan="10"><div class="loading"><div class="spinner"></div> Loading...</div></td></tr></tbody>
+      </table></div>
     </div>
 
     <!-- MAYA -->
@@ -888,26 +386,42 @@
         <div class="section-title">Maya Credit Card <small>Manage your Maya charges</small></div>
         <button class="add-btn" onclick="openModal('maya')">+ Add Entry</button>
       </div>
+
+      <!-- Maya Credit Limit Widget -->
+      <div class="credit-card-widget tab-clw" id="clw-maya">
+        <div class="ccw-header">
+          <span class="ccw-name">💙 Maya — Credit Limit Overview</span>
+          <span class="ccw-limit-badge">Limit: ₱10,000.00</span>
+        </div>
+        <div class="ccw-row">
+          <div class="ccw-col">
+            <span class="ccw-col-label">Outstanding Balance</span>
+            <span class="ccw-col-val red" id="clw-used-maya">₱0.00</span>
+          </div>
+          <div class="ccw-col" style="align-items:flex-end">
+            <span class="ccw-col-label">Available Credit</span>
+            <span class="ccw-col-val green" id="clw-avail-maya">₱10,000.00</span>
+          </div>
+        </div>
+        <div class="ccw-progress-wrap">
+          <div class="ccw-progress-fill" id="clw-bar-maya" style="width:0%"></div>
+        </div>
+        <div class="ccw-footer">
+          <span class="ccw-pct ok" id="clw-pct-maya">0.0% utilized</span>
+          <span class="ccw-status-tag ok" id="clw-tag-maya">Good Standing</span>
+        </div>
+      </div>
       <div class="panel-toolbar">
         <div class="search-wrap">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
           <input class="search-input" id="search-maya" placeholder="Search name or Description…" oninput="filterTable('maya', this.value)" />
         </div>
         <div class="tab-totals">
-          <div class="tab-total-item">
-            <span class="tab-total-label">Total Debt</span>
-            <span class="tab-total-value red" id="tabtotal-debt-maya">₱0.00</span>
-          </div>
+          <div class="tab-total-item"><span class="tab-total-label">Total Debt</span><span class="tab-total-value red" id="tabtotal-debt-maya">₱0.00</span></div>
           <div class="tab-totals-divider"></div>
-          <div class="tab-total-item">
-            <span class="tab-total-label">Total Paid</span>
-            <span class="tab-total-value green" id="tabtotal-paid-maya">₱0.00</span>
-          </div>
+          <div class="tab-total-item"><span class="tab-total-label">Total Paid</span><span class="tab-total-value green" id="tabtotal-paid-maya">₱0.00</span></div>
           <div class="tab-totals-divider"></div>
-          <div class="tab-total-item">
-            <span class="tab-total-label">Remaining</span>
-            <span class="tab-total-value red" id="tabtotal-balance-maya">₱0.00</span>
-          </div>
+          <div class="tab-total-item"><span class="tab-total-label">Remaining</span><span class="tab-total-value red" id="tabtotal-balance-maya">₱0.00</span></div>
         </div>
       </div>
       <div class="bulk-bar" id="bulk-maya">
@@ -915,20 +429,13 @@
         <button class="bulk-cancel-btn" onclick="clearSelection('maya')">Cancel</button>
         <button class="bulk-del-btn" onclick="bulkDelete('maya')">Delete Selected</button>
       </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th class="check-col"><input type="checkbox" class="row-check" id="checkall-maya" onchange="toggleSelectAll('maya', this.checked)" /></th>
-              <th>Name</th><th>Date</th><th>Amount</th><th>Paid</th>
-              <th>Balance</th><th>Due Date</th><th>Status</th><th>Description</th><th></th>
-            </tr>
-          </thead>
-          <tbody id="tbody-maya">
-            <tr><td colspan="10"><div class="loading"><div class="spinner"></div> Loading...</div></td></tr>
-          </tbody>
-        </table>
-      </div>
+      <div class="table-wrap"><table>
+        <thead><tr>
+          <th class="check-col"><input type="checkbox" class="row-check" id="checkall-maya" onchange="toggleSelectAll('maya', this.checked)" /></th>
+          <th>Name</th><th>Date</th><th>Amount</th><th>Paid</th><th>Balance</th><th>Due Date</th><th>Status</th><th>Description</th><th></th>
+        </tr></thead>
+        <tbody id="tbody-maya"><tr><td colspan="10"><div class="loading"><div class="spinner"></div> Loading...</div></td></tr></tbody>
+      </table></div>
     </div>
 
     <!-- TIKTOK -->
@@ -943,20 +450,11 @@
           <input class="search-input" id="search-tiktok" placeholder="Search name or Description…" oninput="filterTable('tiktok', this.value)" />
         </div>
         <div class="tab-totals">
-          <div class="tab-total-item">
-            <span class="tab-total-label">Total Debt</span>
-            <span class="tab-total-value red" id="tabtotal-debt-tiktok">₱0.00</span>
-          </div>
+          <div class="tab-total-item"><span class="tab-total-label">Total Debt</span><span class="tab-total-value red" id="tabtotal-debt-tiktok">₱0.00</span></div>
           <div class="tab-totals-divider"></div>
-          <div class="tab-total-item">
-            <span class="tab-total-label">Total Paid</span>
-            <span class="tab-total-value green" id="tabtotal-paid-tiktok">₱0.00</span>
-          </div>
+          <div class="tab-total-item"><span class="tab-total-label">Total Paid</span><span class="tab-total-value green" id="tabtotal-paid-tiktok">₱0.00</span></div>
           <div class="tab-totals-divider"></div>
-          <div class="tab-total-item">
-            <span class="tab-total-label">Remaining</span>
-            <span class="tab-total-value red" id="tabtotal-balance-tiktok">₱0.00</span>
-          </div>
+          <div class="tab-total-item"><span class="tab-total-label">Remaining</span><span class="tab-total-value red" id="tabtotal-balance-tiktok">₱0.00</span></div>
         </div>
       </div>
       <div class="bulk-bar" id="bulk-tiktok">
@@ -964,20 +462,13 @@
         <button class="bulk-cancel-btn" onclick="clearSelection('tiktok')">Cancel</button>
         <button class="bulk-del-btn" onclick="bulkDelete('tiktok')">Delete Selected</button>
       </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th class="check-col"><input type="checkbox" class="row-check" id="checkall-tiktok" onchange="toggleSelectAll('tiktok', this.checked)" /></th>
-              <th>Name</th><th>Date</th><th>Amount</th><th>Paid</th>
-              <th>Balance</th><th>Due Date</th><th>Status</th><th>Description</th><th></th>
-            </tr>
-          </thead>
-          <tbody id="tbody-tiktok">
-            <tr><td colspan="10"><div class="loading"><div class="spinner"></div> Loading...</div></td></tr>
-          </tbody>
-        </table>
-      </div>
+      <div class="table-wrap"><table>
+        <thead><tr>
+          <th class="check-col"><input type="checkbox" class="row-check" id="checkall-tiktok" onchange="toggleSelectAll('tiktok', this.checked)" /></th>
+          <th>Name</th><th>Date</th><th>Amount</th><th>Paid</th><th>Balance</th><th>Due Date</th><th>Status</th><th>Description</th><th></th>
+        </tr></thead>
+        <tbody id="tbody-tiktok"><tr><td colspan="10"><div class="loading"><div class="spinner"></div> Loading...</div></td></tr></tbody>
+      </table></div>
     </div>
 
     <!-- INSTALLMENTS -->
@@ -992,20 +483,11 @@
           <input class="search-input" id="search-installments" placeholder="Search item or merchant…" oninput="filterTable('installments', this.value)" />
         </div>
         <div class="tab-totals">
-          <div class="tab-total-item">
-            <span class="tab-total-label">Total Debt</span>
-            <span class="tab-total-value red" id="tabtotal-debt-installments">₱0.00</span>
-          </div>
+          <div class="tab-total-item"><span class="tab-total-label">Total Debt</span><span class="tab-total-value red" id="tabtotal-debt-installments">₱0.00</span></div>
           <div class="tab-totals-divider"></div>
-          <div class="tab-total-item">
-            <span class="tab-total-label">Total Paid</span>
-            <span class="tab-total-value green" id="tabtotal-paid-installments">₱0.00</span>
-          </div>
+          <div class="tab-total-item"><span class="tab-total-label">Total Paid</span><span class="tab-total-value green" id="tabtotal-paid-installments">₱0.00</span></div>
           <div class="tab-totals-divider"></div>
-          <div class="tab-total-item">
-            <span class="tab-total-label">Remaining</span>
-            <span class="tab-total-value red" id="tabtotal-balance-installments">₱0.00</span>
-          </div>
+          <div class="tab-total-item"><span class="tab-total-label">Remaining</span><span class="tab-total-value red" id="tabtotal-balance-installments">₱0.00</span></div>
         </div>
       </div>
       <div class="bulk-bar" id="bulk-installments">
@@ -1013,21 +495,14 @@
         <button class="bulk-cancel-btn" onclick="clearSelection('installments')">Cancel</button>
         <button class="bulk-del-btn" onclick="bulkDelete('installments')">Delete Selected</button>
       </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th class="check-col"><input type="checkbox" class="row-check" id="checkall-installments" onchange="toggleSelectAll('installments', this.checked)" /></th>
-              <th>Name</th><th>Merchant</th><th>Total Amount</th><th>Monthly</th>
-              <th>Months</th><th>Paid Months</th><th>Remaining</th><th>Start Date</th>
-              <th>Status</th><th>Items</th><th></th>
-            </tr>
-          </thead>
-          <tbody id="tbody-installments">
-            <tr><td colspan="12"><div class="loading"><div class="spinner"></div> Loading...</div></td></tr>
-          </tbody>
-        </table>
-      </div>
+      <div class="table-wrap"><table>
+        <thead><tr>
+          <th class="check-col"><input type="checkbox" class="row-check" id="checkall-installments" onchange="toggleSelectAll('installments', this.checked)" /></th>
+          <th>Name</th><th>Merchant</th><th>Total Amount</th><th>Monthly</th>
+          <th>Months</th><th>Paid Months</th><th>Remaining</th><th>Start Date</th><th>Status</th><th>Items</th><th></th>
+        </tr></thead>
+        <tbody id="tbody-installments"><tr><td colspan="12"><div class="loading"><div class="spinner"></div> Loading...</div></td></tr></tbody>
+      </table></div>
     </div>
   </div>
 </div>
@@ -1043,10 +518,12 @@
     </div>
   </div>
 </div>
-
 <div class="toast" id="toast"></div>
 
 <script>
+// ============ CREDIT LIMITS ============
+const CREDIT_LIMITS = { unionbank: 20000, maya: 10000 };
+
 // ============ STATE ============
 let sbClient = null;
 let useLocal = false;
@@ -1054,83 +531,53 @@ let currentModal = { type: null, id: null };
 let data = { unionbank: [], maya: [], tiktok: [], installments: [] };
 let selectedRows = { unionbank: new Set(), maya: new Set(), tiktok: new Set(), installments: new Set() };
 
-// LOCAL STORAGE KEYS
-const LS_KEYS = {
-  unionbank: 'ledger_unionbank',
-  maya: 'ledger_maya',
-  tiktok: 'ledger_tiktok',
-  installments: 'ledger_installments'
-};
+const LS_KEYS = { unionbank:'ledger_unionbank', maya:'ledger_maya', tiktok:'ledger_tiktok', installments:'ledger_installments' };
 const SESSION_KEY = 'ledger_session';
 
-// ============ SUPABASE SETUP ============
+// ============ SUPABASE ============
 function initSupabase() {
   const url = document.getElementById('sbUrl').value.trim();
   const key = document.getElementById('sbKey').value.trim();
   const errEl = document.getElementById('setupError');
-
-  if (!url || !key) {
-    errEl.textContent = 'Please enter both URL and anon key.';
-    return;
-  }
-  if (!url.includes('supabase.co')) {
-    errEl.textContent = 'Please enter a valid Supabase URL.';
-    return;
-  }
-
+  if (!url || !key) { errEl.textContent = 'Please enter both URL and anon key.'; return; }
+  if (!url.includes('supabase.co')) { errEl.textContent = 'Please enter a valid Supabase URL.'; return; }
   try {
     sbClient = window.supabase.createClient(url, key);
-    localStorage.setItem('sb_url', url);
-    localStorage.setItem('sb_key', key);
+    localStorage.setItem('sb_url', url); localStorage.setItem('sb_key', key);
     document.getElementById('setupOverlay').style.display = 'none';
     document.getElementById('loginOverlay').style.display = 'flex';
     document.getElementById('dbDot').classList.add('connected');
     document.getElementById('dbStatus').textContent = 'Supabase';
     createTablesIfNeeded();
-  } catch(e) {
-    errEl.textContent = 'Failed to connect. Check your credentials.';
-  }
+  } catch(e) { errEl.textContent = 'Failed to connect. Check your credentials.'; }
 }
-
 function skipSupabase() {
-  useLocal = true;
-  localStorage.setItem('ledger_mode', 'local');
+  useLocal = true; localStorage.setItem('ledger_mode', 'local');
   document.getElementById('setupOverlay').style.display = 'none';
   document.getElementById('loginOverlay').style.display = 'flex';
   document.getElementById('dbStatus').textContent = 'Local';
 }
-
 async function createTablesIfNeeded() {
   if (!sbClient) return;
   const { error } = await sbClient.from('credit_cards').select('id').limit(1);
-  if (error && error.code === '42P01') {
-    showToast('Tables not found. Please run the SQL schema in Supabase.', true);
-  }
+  if (error && error.code === '42P01') showToast('Tables not found. Please run the SQL schema in Supabase.', true);
 }
 
 // ============ LOGIN ============
 const ADMIN = { user: 'Persona', pass: 'Hominem_20229850' };
-
 function showApp() {
   document.getElementById('loginOverlay').style.display = 'none';
   document.getElementById('app').classList.add('active');
   loadAllData();
 }
-
 function doLogin() {
   const u = document.getElementById('loginUser').value;
   const p = document.getElementById('loginPass').value;
-  if (u === ADMIN.user && p === ADMIN.pass) {
-    localStorage.setItem(SESSION_KEY, 'true');
-    showApp();
-  } else {
-    document.getElementById('loginError').textContent = 'Invalid credentials.';
-  }
+  if (u === ADMIN.user && p === ADMIN.pass) { localStorage.setItem(SESSION_KEY, 'true'); showApp(); }
+  else document.getElementById('loginError').textContent = 'Invalid credentials.';
 }
-
 document.getElementById('loginUser').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
 document.getElementById('loginPass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
-
 function doLogout() {
   localStorage.removeItem(SESSION_KEY);
   document.getElementById('app').classList.remove('active');
@@ -1139,25 +586,15 @@ function doLogout() {
   document.getElementById('loginPass').value = '';
 }
 
-// ============ DATA LAYER ============
-function genId() {
-  return Date.now().toString(36) + Math.random().toString(36).substr(2);
-}
-
-function localGet(type) {
-  try { return JSON.parse(localStorage.getItem(LS_KEYS[type]) || '[]'); }
-  catch { return []; }
-}
-function localSet(type, arr) {
-  localStorage.setItem(LS_KEYS[type], JSON.stringify(arr));
-}
+// ============ DATA ============
+function genId() { return Date.now().toString(36) + Math.random().toString(36).substr(2); }
+function localGet(type) { try { return JSON.parse(localStorage.getItem(LS_KEYS[type]) || '[]'); } catch { return []; } }
+function localSet(type, arr) { localStorage.setItem(LS_KEYS[type], JSON.stringify(arr)); }
 
 async function loadAllData() {
   if (useLocal || !sbClient) {
-    data.unionbank = localGet('unionbank');
-    data.maya = localGet('maya');
-    data.tiktok = localGet('tiktok');
-    data.installments = localGet('installments');
+    data.unionbank = localGet('unionbank'); data.maya = localGet('maya');
+    data.tiktok = localGet('tiktok'); data.installments = localGet('installments');
   } else {
     const [cc, inst] = await Promise.all([
       sbClient.from('credit_cards').select('*').order('created_at', { ascending: false }),
@@ -1165,8 +602,8 @@ async function loadAllData() {
     ]);
     if (!cc.error) {
       data.unionbank = cc.data.filter(r => r.card_type === 'unionbank');
-      data.maya = cc.data.filter(r => r.card_type === 'maya');
-      data.tiktok = cc.data.filter(r => r.card_type === 'tiktok');
+      data.maya      = cc.data.filter(r => r.card_type === 'maya');
+      data.tiktok    = cc.data.filter(r => r.card_type === 'tiktok');
     }
     if (!inst.error) data.installments = inst.data || [];
   }
@@ -1176,52 +613,63 @@ async function loadAllData() {
 async function saveToDb(type, record, isEdit) {
   if (useLocal || !sbClient) {
     let arr = localGet(type);
-    if (isEdit) {
-      arr = arr.map(r => r.id === record.id ? record : r);
-    } else {
-      record.id = genId();
-      arr.unshift(record);
-    }
+    if (isEdit) arr = arr.map(r => r.id === record.id ? record : r);
+    else { record.id = genId(); arr.unshift(record); }
     localSet(type, arr);
     return { data: record, error: null };
   }
-
   if (type === 'installments') {
-    if (isEdit) {
-      return await sbClient.from('installments').update(record).eq('id', record.id).select().single();
-    } else {
-      return await sbClient.from('installments').insert(record).select().single();
-    }
+    if (isEdit) return await sbClient.from('installments').update(record).eq('id', record.id).select().single();
+    return await sbClient.from('installments').insert(record).select().single();
   } else {
     const dbRecord = { ...record, card_type: type };
-    if (isEdit) {
-      return await sbClient.from('credit_cards').update(dbRecord).eq('id', record.id).select().single();
-    } else {
-      return await sbClient.from('credit_cards').insert(dbRecord).select().single();
-    }
+    if (isEdit) return await sbClient.from('credit_cards').update(dbRecord).eq('id', record.id).select().single();
+    return await sbClient.from('credit_cards').insert(dbRecord).select().single();
   }
 }
-
 async function deleteFromDb(type, id) {
-  if (useLocal || !sbClient) {
-    let arr = localGet(type).filter(r => r.id !== id);
-    localSet(type, arr);
-    return { error: null };
-  }
+  if (useLocal || !sbClient) { localSet(type, localGet(type).filter(r => r.id !== id)); return { error: null }; }
   const table = type === 'installments' ? 'installments' : 'credit_cards';
   return await sbClient.from(table).delete().eq('id', id);
 }
 
 // ============ RENDER ============
-function fmt(n) {
-  return '₱' + parseFloat(n || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
+function fmt(n) { return '₱' + parseFloat(n || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
 function statusBadge(status) {
-  const map = {
-    unpaid: 'status-unpaid', partial: 'status-partial',
-    paid: 'status-paid', overdue: 'status-overdue'
-  };
+  const map = { unpaid:'status-unpaid', partial:'status-partial', paid:'status-paid', overdue:'status-overdue' };
   return `<span class="status-badge ${map[status] || 'status-unpaid'}">${status || 'unpaid'}</span>`;
+}
+
+function renderCreditWidget(type) {
+  const limit = CREDIT_LIMITS[type];
+  if (!limit) return;
+  const rows = data[type] || [];
+  // Outstanding = sum of unpaid balances (amount minus what's been paid, floor 0)
+  const used  = rows.reduce((s, r) => { const b = (r.amount||0)-(r.paid||0); return s + (b > 0 ? b : 0); }, 0);
+  const avail = Math.max(limit - used, 0);
+  const pct   = Math.min((used / limit) * 100, 100);
+
+  document.getElementById(`clw-used-${type}`).textContent  = fmt(used);
+  document.getElementById(`clw-avail-${type}`).textContent = fmt(avail);
+
+  const barEl = document.getElementById(`clw-bar-${type}`);
+  barEl.style.width = pct.toFixed(1) + '%';
+
+  const pctEl = document.getElementById(`clw-pct-${type}`);
+  const tagEl = document.getElementById(`clw-tag-${type}`);
+  const widget= document.getElementById(`clw-${type}`);
+
+  let tier = 'ok', tag = 'Good Standing';
+  if (pct >= 85)      { tier = 'danger'; tag = 'Near Limit'; }
+  else if (pct >= 60) { tier = 'warn';   tag = 'High Usage'; }
+
+  widget.classList.remove('warn','danger');
+  barEl.classList.remove('warn','danger');
+  pctEl.className = `ccw-pct ${tier}`;
+  tagEl.className = `ccw-status-tag ${tier}`;
+  if (tier !== 'ok') { widget.classList.add(tier); barEl.classList.add(tier); }
+  pctEl.textContent = pct.toFixed(1) + '% utilized';
+  tagEl.textContent = tag;
 }
 
 function renderCCTable(type, filter = '') {
@@ -1229,44 +677,40 @@ function renderCCTable(type, filter = '') {
   const rows = data[type];
   const q = filter.toLowerCase().trim();
   const filtered = q ? rows.filter(r =>
-    (r.description || '').toLowerCase().includes(q) ||
-    (r.notes || '').toLowerCase().includes(q) ||
-    (r.date || '').includes(q)
+    (r.description||'').toLowerCase().includes(q) ||
+    (r.notes||'').toLowerCase().includes(q) ||
+    (r.date||'').includes(q)
   ) : rows;
 
-  document.getElementById(`count${type.charAt(0).toUpperCase() + type.slice(1)}`).textContent = rows.length;
-
-  const debt = rows.reduce((s, r) => s + (r.amount || 0), 0);
-  const paid = rows.reduce((s, r) => s + (r.paid || 0), 0);
-  document.getElementById(`tabtotal-debt-${type}`).textContent = fmt(debt);
-  document.getElementById(`tabtotal-paid-${type}`).textContent = fmt(paid);
-  document.getElementById(`tabtotal-balance-${type}`).textContent = fmt(debt - paid);
+  document.getElementById(`count${type.charAt(0).toUpperCase()+type.slice(1)}`).textContent = rows.length;
+  const debt = rows.reduce((s,r) => s+(r.amount||0), 0);
+  const paid = rows.reduce((s,r) => s+(r.paid||0), 0);
+  document.getElementById(`tabtotal-debt-${type}`).textContent    = fmt(debt);
+  document.getElementById(`tabtotal-paid-${type}`).textContent    = fmt(paid);
+  document.getElementById(`tabtotal-balance-${type}`).textContent = fmt(debt-paid);
 
   if (!filtered.length) {
     const msg = q ? 'No results match your search.' : 'No entries yet. Click "+ Add Entry" to get started.';
     tbody.innerHTML = `<tr><td colspan="10"><div class="empty-state"><div class="empty-icon">📋</div><p>${msg}</p></div></td></tr>`;
     return;
   }
-
   tbody.innerHTML = filtered.map(r => {
-    const checked = selectedRows[type].has(r.id) ? 'checked' : '';
+    const checked  = selectedRows[type].has(r.id) ? 'checked' : '';
     const rowClass = selectedRows[type].has(r.id) ? 'selected-row' : '';
     return `<tr class="${rowClass}" id="row-${type}-${r.id}">
-      <td class="check-col"><input type="checkbox" class="row-check" ${checked} onchange="toggleRowSelect('${type}', '${r.id}', this.checked)" /></td>
-      <td>${r.description || '—'}</td>
-      <td>${r.date || '—'}</td>
+      <td class="check-col"><input type="checkbox" class="row-check" ${checked} onchange="toggleRowSelect('${type}','${r.id}',this.checked)" /></td>
+      <td>${r.description||'—'}</td>
+      <td>${r.date||'—'}</td>
       <td class="amount-cell">${fmt(r.amount)}</td>
       <td class="paid-cell">${fmt(r.paid)}</td>
-      <td class="balance-cell">${fmt((r.amount || 0) - (r.paid || 0))}</td>
-      <td>${r.due_date || '—'}</td>
+      <td class="balance-cell">${fmt((r.amount||0)-(r.paid||0))}</td>
+      <td>${r.due_date||'—'}</td>
       <td>${statusBadge(r.status)}</td>
-      <td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text2)">${r.notes || '—'}</td>
-      <td>
-        <div class="action-btns" style="justify-content:center">
-          <button class="edit-btn" onclick="openModal('${type}', '${r.id}')">Edit</button>
-          <button class="del-btn" onclick="deleteEntry('${type}', '${r.id}')">✕</button>
-        </div>
-      </td>
+      <td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text2)">${r.notes||'—'}</td>
+      <td><div class="action-btns" style="justify-content:center">
+        <button class="edit-btn" onclick="openModal('${type}','${r.id}')">Edit</button>
+        <button class="del-btn" onclick="deleteEntry('${type}','${r.id}')">✕</button>
+      </div></td>
     </tr>`;
   }).join('');
 }
@@ -1276,68 +720,57 @@ function renderInstallmentsTable(filter = '') {
   const rows = data.installments;
   const q = filter.toLowerCase().trim();
   const filtered = q ? rows.filter(r =>
-    (r.item || '').toLowerCase().includes(q) ||
-    (r.merchant || '').toLowerCase().includes(q) ||
-    (r.notes || '').toLowerCase().includes(q)
+    (r.item||'').toLowerCase().includes(q) ||
+    (r.merchant||'').toLowerCase().includes(q) ||
+    (r.notes||'').toLowerCase().includes(q)
   ) : rows;
 
   document.getElementById('countInstallments').textContent = rows.length;
-
-  const debt = rows.reduce((s, r) => s + (r.total_amount || 0), 0);
-  const paid = rows.reduce((s, r) => s + ((r.paid_months || 0) * (r.monthly || 0)), 0);
-  document.getElementById('tabtotal-debt-installments').textContent = fmt(debt);
-  document.getElementById('tabtotal-paid-installments').textContent = fmt(paid);
-  document.getElementById('tabtotal-balance-installments').textContent = fmt(debt - paid);
+  const debt = rows.reduce((s,r) => s+(r.total_amount||0), 0);
+  const paid = rows.reduce((s,r) => s+((r.paid_months||0)*(r.monthly||0)), 0);
+  document.getElementById('tabtotal-debt-installments').textContent    = fmt(debt);
+  document.getElementById('tabtotal-paid-installments').textContent    = fmt(paid);
+  document.getElementById('tabtotal-balance-installments').textContent = fmt(debt-paid);
 
   if (!filtered.length) {
     const msg = q ? 'No results match your search.' : 'No installments yet. Click "+ Add Entry" to get started.';
     tbody.innerHTML = `<tr><td colspan="12"><div class="empty-state"><div class="empty-icon">📋</div><p>${msg}</p></div></td></tr>`;
     return;
   }
-
   tbody.innerHTML = filtered.map(r => {
-    const remaining = (r.total_months || 0) - (r.paid_months || 0);
-    const remainingAmt = remaining * (r.monthly || 0);
-    const checked = selectedRows.installments.has(r.id) ? 'checked' : '';
+    const rem = (r.total_months||0)-(r.paid_months||0);
+    const remAmt = rem*(r.monthly||0);
+    const checked  = selectedRows.installments.has(r.id) ? 'checked' : '';
     const rowClass = selectedRows.installments.has(r.id) ? 'selected-row' : '';
     return `<tr class="${rowClass}" id="row-installments-${r.id}">
-      <td class="check-col"><input type="checkbox" class="row-check" ${checked} onchange="toggleRowSelect('installments', '${r.id}', this.checked)" /></td>
-      <td style="font-weight:500">${r.item || '—'}</td>
-      <td>${r.merchant || '—'}</td>
+      <td class="check-col"><input type="checkbox" class="row-check" ${checked} onchange="toggleRowSelect('installments','${r.id}',this.checked)" /></td>
+      <td style="font-weight:500">${r.item||'—'}</td>
+      <td>${r.merchant||'—'}</td>
       <td class="amount-cell">${fmt(r.total_amount)}</td>
       <td style="color:var(--text2)">${fmt(r.monthly)}</td>
-      <td>${r.total_months || 0}</td>
-      <td style="color:var(--green);font-weight:500">${r.paid_months || 0}</td>
-      <td class="balance-cell">${fmt(remainingAmt)}</td>
-      <td>${r.start_date || '—'}</td>
+      <td>${r.total_months||0}</td>
+      <td style="color:var(--green);font-weight:500">${r.paid_months||0}</td>
+      <td class="balance-cell">${fmt(remAmt)}</td>
+      <td>${r.start_date||'—'}</td>
       <td>${statusBadge(r.status)}</td>
-      <td style="max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text2)">${r.notes || '—'}</td>
-      <td>
-        <div class="action-btns" style="justify-content:center">
-          <button class="edit-btn" onclick="openModal('installments', '${r.id}')">Edit</button>
-          <button class="del-btn" onclick="deleteEntry('installments', '${r.id}')">✕</button>
-        </div>
-      </td>
+      <td style="max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text2)">${r.notes||'—'}</td>
+      <td><div class="action-btns" style="justify-content:center">
+        <button class="edit-btn" onclick="openModal('installments','${r.id}')">Edit</button>
+        <button class="del-btn" onclick="deleteEntry('installments','${r.id}')">✕</button>
+      </div></td>
     </tr>`;
   }).join('');
 }
 
 function renderSummary() {
-  const allCC = [...data.unionbank, ...data.maya, ...data.tiktok];
-  const instTotals = data.installments.map(r => ({
-    amount: r.total_amount || 0,
-    paid: (r.paid_months || 0) * (r.monthly || 0)
-  }));
-
-  const totalDebt = allCC.reduce((s, r) => s + (r.amount || 0), 0)
-    + data.installments.reduce((s, r) => s + (r.total_amount || 0), 0);
-  const totalPaid = allCC.reduce((s, r) => s + (r.paid || 0), 0)
-    + instTotals.reduce((s, r) => s + r.paid, 0);
+  const allCC = [...data.unionbank,...data.maya,...data.tiktok];
+  const instTotals = data.installments.map(r => ({ amount:r.total_amount||0, paid:(r.paid_months||0)*(r.monthly||0) }));
+  const totalDebt    = allCC.reduce((s,r) => s+(r.amount||0), 0) + data.installments.reduce((s,r) => s+(r.total_amount||0), 0);
+  const totalPaid    = allCC.reduce((s,r) => s+(r.paid||0), 0) + instTotals.reduce((s,r) => s+r.paid, 0);
   const totalBalance = totalDebt - totalPaid;
   const totalEntries = allCC.length + data.installments.length;
-
-  document.getElementById('totalDebt').textContent = fmt(totalDebt);
-  document.getElementById('totalPaid').textContent = fmt(totalPaid);
+  document.getElementById('totalDebt').textContent    = fmt(totalDebt);
+  document.getElementById('totalPaid').textContent    = fmt(totalPaid);
   document.getElementById('totalBalance').textContent = fmt(totalBalance);
   document.getElementById('totalEntries').textContent = totalEntries;
 }
@@ -1348,23 +781,21 @@ function renderAll() {
   renderCCTable('tiktok');
   renderInstallmentsTable();
   renderSummary();
+  renderCreditWidget('unionbank');
+  renderCreditWidget('maya');
 }
 
 function filterTable(type, value) {
-  if (type === 'installments') {
-    renderInstallmentsTable(value);
-  } else {
-    renderCCTable(type, value);
-  }
+  if (type === 'installments') renderInstallmentsTable(value);
+  else renderCCTable(type, value);
 }
 
 // ============ TABS ============
 let activeTab = 'unionbank';
 function switchTab(tab) {
   activeTab = tab;
-  document.querySelectorAll('.tab-btn').forEach((b, i) => {
-    const tabs = ['unionbank', 'maya', 'tiktok', 'installments'];
-    b.classList.toggle('active', tabs[i] === tab);
+  document.querySelectorAll('.tab-btn').forEach((b,i) => {
+    b.classList.toggle('active', ['unionbank','maya','tiktok','installments'][i] === tab);
   });
   document.querySelectorAll('.tab-panel').forEach(p => {
     p.classList.toggle('active', p.id === `panel-${tab}`);
@@ -1374,159 +805,95 @@ function switchTab(tab) {
 // ============ MODAL ============
 function openModal(type, id = null) {
   currentModal = { type, id };
-  const isEdit = !!id;
-  document.getElementById('modalTitle').textContent = isEdit ? 'Edit Entry' : `Add Entry`;
-
-  let record = null;
-  if (isEdit) {
-    record = data[type].find(r => r.id === id);
-    if (!record) return;
-  }
-
+  document.getElementById('modalTitle').textContent = id ? 'Edit Entry' : 'Add Entry';
+  let record = id ? data[type].find(r => r.id === id) : null;
+  if (id && !record) return;
   const body = document.getElementById('modalBody');
-  if (type === 'installments') {
-    body.innerHTML = installmentForm(record);
-  } else {
-    body.innerHTML = creditCardForm(record);
-  }
-
-  // Auto-calc balance
+  body.innerHTML = type === 'installments' ? installmentForm(record) : creditCardForm(record);
   if (type !== 'installments') {
     const amtEl = body.querySelector('[name="amount"]');
     const paidEl = body.querySelector('[name="paid"]');
     if (amtEl && paidEl) {
-      const updateStatus = () => {
-        const a = parseFloat(amtEl.value) || 0;
-        const p = parseFloat(paidEl.value) || 0;
+      const upd = () => {
+        const a = parseFloat(amtEl.value)||0, p = parseFloat(paidEl.value)||0;
         if (a > 0) {
-          const statusEl = body.querySelector('[name="status"]');
-          if (statusEl) {
-            if (p >= a) statusEl.value = 'paid';
-            else if (p > 0) statusEl.value = 'partial';
-            else statusEl.value = 'unpaid';
-          }
+          const s = body.querySelector('[name="status"]');
+          if (s) s.value = p>=a ? 'paid' : p>0 ? 'partial' : 'unpaid';
         }
       };
-      amtEl.addEventListener('input', updateStatus);
-      paidEl.addEventListener('input', updateStatus);
+      amtEl.addEventListener('input', upd);
+      paidEl.addEventListener('input', upd);
     }
   }
-
   document.getElementById('modalBackdrop').classList.add('open');
 }
 
 function creditCardForm(r) {
   return `
-    <div class="form-group"><label>Name</label>
-      <input name="description" value="${r?.description || ''}" placeholder="e.g. Liza, Berna, Rose" /></div>
+    <div class="form-group"><label>Name</label><input name="description" value="${r?.description||''}" placeholder="e.g. Liza, Berna, Rose" /></div>
     <div class="form-row">
-      <div class="form-group"><label>Transaction Date</label>
-        <input type="date" name="date" value="${r?.date || ''}" /></div>
-      <div class="form-group"><label>Due Date</label>
-        <input type="date" name="due_date" value="${r?.due_date || ''}" /></div>
+      <div class="form-group"><label>Transaction Date</label><input type="date" name="date" value="${r?.date||''}" /></div>
+      <div class="form-group"><label>Due Date</label><input type="date" name="due_date" value="${r?.due_date||''}" /></div>
     </div>
     <div class="form-row">
-      <div class="form-group"><label>Amount (₱)</label>
-        <input type="number" name="amount" value="${r?.amount || ''}" placeholder="0.00" step="0.01" min="0" /></div>
-      <div class="form-group"><label>Amount Paid (₱)</label>
-        <input type="number" name="paid" value="${r?.paid || ''}" placeholder="0.00" step="0.01" min="0" /></div>
+      <div class="form-group"><label>Amount (₱)</label><input type="number" name="amount" value="${r?.amount||''}" placeholder="0.00" step="0.01" min="0" /></div>
+      <div class="form-group"><label>Amount Paid (₱)</label><input type="number" name="paid" value="${r?.paid||''}" placeholder="0.00" step="0.01" min="0" /></div>
     </div>
     <div class="form-group"><label>Status</label>
       <select name="status">
-        <option value="unpaid" ${r?.status === 'unpaid' ? 'selected' : ''}>Unpaid</option>
-        <option value="partial" ${r?.status === 'partial' ? 'selected' : ''}>Partial</option>
-        <option value="paid" ${r?.status === 'paid' ? 'selected' : ''}>Paid</option>
-        <option value="overdue" ${r?.status === 'overdue' ? 'selected' : ''}>Overdue</option>
+        <option value="unpaid" ${r?.status==='unpaid'?'selected':''}>Unpaid</option>
+        <option value="partial" ${r?.status==='partial'?'selected':''}>Partial</option>
+        <option value="paid" ${r?.status==='paid'?'selected':''}>Paid</option>
+        <option value="overdue" ${r?.status==='overdue'?'selected':''}>Overdue</option>
       </select></div>
-    <div class="form-group"><label>Description</label>
-      <textarea name="notes" placeholder="Optional notes...">${r?.notes || ''}</textarea></div>
-  `;
+    <div class="form-group"><label>Description</label><textarea name="notes" placeholder="Optional notes...">${r?.notes||''}</textarea></div>`;
 }
 
 function installmentForm(r) {
   return `
-    <div class="form-group"><label>Name</label>
-      <input name="item" value="${r?.item || ''}" placeholder="e.g. iPhone 15, Laptop" /></div>
-    <div class="form-group"><label>Merchant / Store</label>
-      <input name="merchant" value="${r?.merchant || ''}" placeholder="e.g. Lazada, SM" /></div>
+    <div class="form-group"><label>Name</label><input name="item" value="${r?.item||''}" placeholder="e.g. iPhone 15, Laptop" /></div>
+    <div class="form-group"><label>Merchant / Store</label><input name="merchant" value="${r?.merchant||''}" placeholder="e.g. Lazada, SM" /></div>
     <div class="form-row">
-      <div class="form-group"><label>Total Amount (₱)</label>
-        <input type="number" name="total_amount" value="${r?.total_amount || ''}" placeholder="0.00" step="0.01" min="0" /></div>
-      <div class="form-group"><label>Monthly Payment (₱)</label>
-        <input type="number" name="monthly" value="${r?.monthly || ''}" placeholder="0.00" step="0.01" min="0" /></div>
+      <div class="form-group"><label>Total Amount (₱)</label><input type="number" name="total_amount" value="${r?.total_amount||''}" placeholder="0.00" step="0.01" min="0" /></div>
+      <div class="form-group"><label>Monthly Payment (₱)</label><input type="number" name="monthly" value="${r?.monthly||''}" placeholder="0.00" step="0.01" min="0" /></div>
     </div>
     <div class="form-row">
-      <div class="form-group"><label>Total Months</label>
-        <input type="number" name="total_months" value="${r?.total_months || ''}" placeholder="12" min="1" /></div>
-      <div class="form-group"><label>Months Paid</label>
-        <input type="number" name="paid_months" value="${r?.paid_months || ''}" placeholder="0" min="0" /></div>
+      <div class="form-group"><label>Total Months</label><input type="number" name="total_months" value="${r?.total_months||''}" placeholder="12" min="1" /></div>
+      <div class="form-group"><label>Months Paid</label><input type="number" name="paid_months" value="${r?.paid_months||''}" placeholder="0" min="0" /></div>
     </div>
     <div class="form-row">
-      <div class="form-group"><label>Start Date</label>
-        <input type="date" name="start_date" value="${r?.start_date || ''}" /></div>
+      <div class="form-group"><label>Start Date</label><input type="date" name="start_date" value="${r?.start_date||''}" /></div>
       <div class="form-group"><label>Status</label>
         <select name="status">
-          <option value="unpaid" ${r?.status === 'unpaid' ? 'selected' : ''}>Unpaid</option>
-          <option value="partial" ${r?.status === 'partial' ? 'selected' : ''}>Partial</option>
-          <option value="paid" ${r?.status === 'paid' ? 'selected' : ''}>Paid</option>
-          <option value="overdue" ${r?.status === 'overdue' ? 'selected' : ''}>Overdue</option>
+          <option value="unpaid" ${r?.status==='unpaid'?'selected':''}>Unpaid</option>
+          <option value="partial" ${r?.status==='partial'?'selected':''}>Partial</option>
+          <option value="paid" ${r?.status==='paid'?'selected':''}>Paid</option>
+          <option value="overdue" ${r?.status==='overdue'?'selected':''}>Overdue</option>
         </select></div>
     </div>
-    <div class="form-group"><label>Description</label>
-      <textarea name="notes" placeholder="Optional notes...">${r?.notes || ''}</textarea></div>
-  `;
+    <div class="form-group"><label>Description</label><textarea name="notes" placeholder="Optional notes...">${r?.notes||''}</textarea></div>`;
 }
 
-function closeModal() {
-  document.getElementById('modalBackdrop').classList.remove('open');
-  currentModal = { type: null, id: null };
-}
-
-function closeModalOutside(e) {
-  if (e.target.id === 'modalBackdrop') closeModal();
-}
+function closeModal() { document.getElementById('modalBackdrop').classList.remove('open'); currentModal = { type:null, id:null }; }
+function closeModalOutside(e) { if (e.target.id === 'modalBackdrop') closeModal(); }
 
 async function saveEntry() {
   const { type, id } = currentModal;
   if (!type) return;
-
   const body = document.getElementById('modalBody');
   const fields = {};
-  body.querySelectorAll('input, select, textarea').forEach(el => {
-    if (el.name) fields[el.name] = el.value;
-  });
-
-  // Validate
-  if (type === 'installments' && !fields.item) {
-    showToast('Please enter an item name.', true); return;
-  }
-  if (type !== 'installments' && !fields.description) {
-    showToast('Please enter a name.', true); return;
-  }
-
+  body.querySelectorAll('input,select,textarea').forEach(el => { if (el.name) fields[el.name] = el.value; });
+  if (type === 'installments' && !fields.item) { showToast('Please enter an item name.', true); return; }
+  if (type !== 'installments' && !fields.description) { showToast('Please enter a name.', true); return; }
   const record = { ...fields };
-  if (type !== 'installments') {
-    record.amount = parseFloat(record.amount) || 0;
-    record.paid = parseFloat(record.paid) || 0;
-  } else {
-    record.total_amount = parseFloat(record.total_amount) || 0;
-    record.monthly = parseFloat(record.monthly) || 0;
-    record.total_months = parseInt(record.total_months) || 0;
-    record.paid_months = parseInt(record.paid_months) || 0;
-  }
-
-  const isEdit = !!id;
-  if (isEdit) record.id = id;
-
-  const { error } = await saveToDb(type, record, isEdit);
-  if (error) {
-    showToast('Error saving: ' + error.message, true);
-    return;
-  }
-
+  if (type !== 'installments') { record.amount = parseFloat(record.amount)||0; record.paid = parseFloat(record.paid)||0; }
+  else { record.total_amount = parseFloat(record.total_amount)||0; record.monthly = parseFloat(record.monthly)||0; record.total_months = parseInt(record.total_months)||0; record.paid_months = parseInt(record.paid_months)||0; }
+  if (id) record.id = id;
+  const { error } = await saveToDb(type, record, !!id);
+  if (error) { showToast('Error saving: ' + error.message, true); return; }
   await loadAllData();
   closeModal();
-  showToast(isEdit ? 'Entry updated.' : 'Entry added.');
+  showToast(id ? 'Entry updated.' : 'Entry added.');
 }
 
 async function deleteEntry(type, id) {
@@ -1540,83 +907,49 @@ async function deleteEntry(type, id) {
 
 // ============ BULK DELETE ============
 function toggleRowSelect(type, id, checked) {
-  if (checked) {
-    selectedRows[type].add(id);
-  } else {
-    selectedRows[type].delete(id);
-  }
+  if (checked) selectedRows[type].add(id); else selectedRows[type].delete(id);
   updateBulkBar(type);
-
-  // Update row highlight
   const row = document.getElementById(`row-${type}-${id}`);
   if (row) row.classList.toggle('selected-row', checked);
-
-  // Update select-all checkbox state
   const allIds = data[type].map(r => r.id);
-  const allChecked = allIds.length > 0 && allIds.every(i => selectedRows[type].has(i));
   const selectAllEl = document.getElementById(`checkall-${type}`);
-  if (selectAllEl) selectAllEl.checked = allChecked;
+  if (selectAllEl) selectAllEl.checked = allIds.length > 0 && allIds.every(i => selectedRows[type].has(i));
 }
-
 function toggleSelectAll(type, checked) {
-  const rows = data[type];
-  if (checked) {
-    rows.forEach(r => selectedRows[type].add(r.id));
-  } else {
-    selectedRows[type].clear();
-  }
+  if (checked) data[type].forEach(r => selectedRows[type].add(r.id)); else selectedRows[type].clear();
   updateBulkBar(type);
-  // Re-render to reflect all checkboxes
   const filter = document.getElementById(`search-${type}`)?.value || '';
-  if (type === 'installments') renderInstallmentsTable(filter);
-  else renderCCTable(type, filter);
+  if (type === 'installments') renderInstallmentsTable(filter); else renderCCTable(type, filter);
 }
-
 function updateBulkBar(type) {
   const count = selectedRows[type].size;
-  const bar = document.getElementById(`bulk-${type}`);
+  const bar  = document.getElementById(`bulk-${type}`);
   const info = document.getElementById(`bulk-info-${type}`);
-  if (bar) bar.classList.toggle('visible', count > 0);
-  if (info) info.textContent = `${count} row${count !== 1 ? 's' : ''} selected`;
+  if (bar)  bar.classList.toggle('visible', count > 0);
+  if (info) info.textContent = `${count} row${count!==1?'s':''} selected`;
 }
-
 function clearSelection(type) {
-  selectedRows[type].clear();
-  updateBulkBar(type);
-  const selectAllEl = document.getElementById(`checkall-${type}`);
-  if (selectAllEl) selectAllEl.checked = false;
+  selectedRows[type].clear(); updateBulkBar(type);
+  const sel = document.getElementById(`checkall-${type}`); if (sel) sel.checked = false;
   const filter = document.getElementById(`search-${type}`)?.value || '';
-  if (type === 'installments') renderInstallmentsTable(filter);
-  else renderCCTable(type, filter);
+  if (type === 'installments') renderInstallmentsTable(filter); else renderCCTable(type, filter);
 }
-
 async function bulkDelete(type) {
   const ids = [...selectedRows[type]];
   if (!ids.length) return;
-  if (!confirm(`Delete ${ids.length} selected entr${ids.length !== 1 ? 'ies' : 'y'}? This cannot be undone.`)) return;
-
+  if (!confirm(`Delete ${ids.length} selected entr${ids.length!==1?'ies':'y'}? This cannot be undone.`)) return;
   let errCount = 0;
-  for (const id of ids) {
-    const { error } = await deleteFromDb(type, id);
-    if (error) errCount++;
-  }
+  for (const id of ids) { const { error } = await deleteFromDb(type, id); if (error) errCount++; }
   selectedRows[type].clear();
-  const selectAllEl = document.getElementById(`checkall-${type}`);
-  if (selectAllEl) selectAllEl.checked = false;
+  const sel = document.getElementById(`checkall-${type}`); if (sel) sel.checked = false;
   await loadAllData();
-  if (errCount > 0) {
-    showToast(`Deleted with ${errCount} error(s).`, true);
-  } else {
-    showToast(`${ids.length} entr${ids.length !== 1 ? 'ies' : 'y'} deleted.`);
-  }
+  showToast(errCount > 0 ? `Deleted with ${errCount} error(s).` : `${ids.length} entr${ids.length!==1?'ies':'y'} deleted.`, errCount > 0);
 }
 
 // ============ TOAST ============
 function showToast(msg, isError = false) {
   const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'toast' + (isError ? ' error' : '');
-  t.classList.add('show');
+  t.textContent = msg; t.className = 'toast' + (isError ? ' error' : ''); t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 3000);
 }
 
@@ -1625,32 +958,21 @@ window.addEventListener('load', () => {
   const savedUrl = localStorage.getItem('sb_url');
   const savedKey = localStorage.getItem('sb_key');
   const hasSession = localStorage.getItem(SESSION_KEY) === 'true';
-
   if (savedUrl && savedKey) {
     try {
       sbClient = window.supabase.createClient(savedUrl, savedKey);
       document.getElementById('dbDot').classList.add('connected');
       document.getElementById('dbStatus').textContent = 'Supabase';
       document.getElementById('setupOverlay').style.display = 'none';
-      if (hasSession) {
-        showApp();
-      } else {
-        document.getElementById('loginOverlay').style.display = 'flex';
-      }
-    } catch (e) {
-      // show setup
-    }
+      if (hasSession) showApp(); else document.getElementById('loginOverlay').style.display = 'flex';
+    } catch(e) {}
   } else if (hasSession) {
-    // local mode, already logged in
     useLocal = true;
     document.getElementById('setupOverlay').style.display = 'none';
     showApp();
   }
 });
-
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') closeModal();
-});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 </script>
 
 <script>
@@ -1661,167 +983,39 @@ document.addEventListener('keydown', e => {
   const ACCENT = '255,255,255';
   let W, H, shapes, particles, nodes;
 
-  function resize() {
-    W = canvas.width  = window.innerWidth;
-    H = canvas.height = window.innerHeight;
-  }
-
-  // --- Floating polygon shapes ---
-  function makeShape() {
-    const sides = [3,4,5,6][Math.floor(Math.random()*4)];
-    const size  = 18 + Math.random()*60;
-    return {
-      x: Math.random()*W, y: Math.random()*H,
-      vx: (Math.random()-0.5)*0.35, vy: (Math.random()-0.5)*0.35,
-      rot: Math.random()*Math.PI*2,
-      vr: (Math.random()-0.5)*0.004,
-      sides, size,
-      alpha: 0.04 + Math.random()*0.18,
-      filled: Math.random() > 0.55
-    };
-  }
-
-  // --- Drifting particles ---
-  function makeParticle() {
-    return {
-      x: Math.random()*W, y: Math.random()*H,
-      vx:(Math.random()-0.5)*0.5, vy:(Math.random()-0.5)*0.5,
-      r: 0.8 + Math.random()*2,
-      alpha: 0.2 + Math.random()*0.5
-    };
-  }
-
-  // --- Network nodes ---
-  function makeNode() {
-    return {
-      x: Math.random()*W, y: Math.random()*H,
-      vx:(Math.random()-0.5)*0.4, vy:(Math.random()-0.5)*0.4,
-      r: 1.5 + Math.random()*2
-    };
-  }
-
-  function init() {
-    shapes    = Array.from({length:22}, makeShape);
-    particles = Array.from({length:55}, makeParticle);
-    nodes     = Array.from({length:40}, makeNode);
-  }
+  function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+  function makeShape() { const sides=[3,4,5,6][Math.floor(Math.random()*4)],size=18+Math.random()*60; return{x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-0.5)*0.35,vy:(Math.random()-0.5)*0.35,rot:Math.random()*Math.PI*2,vr:(Math.random()-0.5)*0.004,sides,size,alpha:0.04+Math.random()*0.18,filled:Math.random()>0.55}; }
+  function makeParticle() { return{x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-0.5)*0.5,vy:(Math.random()-0.5)*0.5,r:0.8+Math.random()*2,alpha:0.2+Math.random()*0.5}; }
+  function makeNode() { return{x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-0.5)*0.4,vy:(Math.random()-0.5)*0.4,r:1.5+Math.random()*2}; }
+  function init() { shapes=Array.from({length:22},makeShape); particles=Array.from({length:55},makeParticle); nodes=Array.from({length:40},makeNode); }
 
   function drawPolygon(s) {
-    ctx.save();
-    ctx.translate(s.x, s.y);
-    ctx.rotate(s.rot);
-    ctx.beginPath();
-    for (let i=0; i<s.sides; i++) {
-      const a = (i/s.sides)*Math.PI*2 - Math.PI/2;
-      const x = Math.cos(a)*s.size, y = Math.sin(a)*s.size;
-      i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
-    }
-    ctx.closePath();
-    if (s.filled) {
-      ctx.fillStyle = `rgba(${ACCENT},${s.alpha*0.25})`;
-      ctx.fill();
-    }
-    ctx.strokeStyle = `rgba(${ACCENT},${s.alpha})`;
-    ctx.lineWidth = 1;
-    ctx.stroke();
-    ctx.restore();
+    ctx.save(); ctx.translate(s.x,s.y); ctx.rotate(s.rot); ctx.beginPath();
+    for(let i=0;i<s.sides;i++){const a=(i/s.sides)*Math.PI*2-Math.PI/2;i===0?ctx.moveTo(Math.cos(a)*s.size,Math.sin(a)*s.size):ctx.lineTo(Math.cos(a)*s.size,Math.sin(a)*s.size);}
+    ctx.closePath(); if(s.filled){ctx.fillStyle=`rgba(${ACCENT},${s.alpha*0.25})`;ctx.fill();} ctx.strokeStyle=`rgba(${ACCENT},${s.alpha})`; ctx.lineWidth=1; ctx.stroke(); ctx.restore();
   }
-
-  function drawParticle(p) {
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
-    ctx.fillStyle = `rgba(${ACCENT},${p.alpha})`;
-    ctx.fill();
-  }
-
+  function drawParticle(p) { ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fillStyle=`rgba(${ACCENT},${p.alpha})`; ctx.fill(); }
   function drawNodes() {
-    const LINK_DIST = 130;
-    // Draw connections
-    for (let i=0; i<nodes.length; i++) {
-      for (let j=i+1; j<nodes.length; j++) {
-        const dx = nodes[i].x - nodes[j].x;
-        const dy = nodes[i].y - nodes[j].y;
-        const d  = Math.sqrt(dx*dx + dy*dy);
-        if (d < LINK_DIST) {
-          const a = (1 - d/LINK_DIST) * 0.18;
-          ctx.beginPath();
-          ctx.moveTo(nodes[i].x, nodes[i].y);
-          ctx.lineTo(nodes[j].x, nodes[j].y);
-          ctx.strokeStyle = `rgba(${ACCENT},${a})`;
-          ctx.lineWidth = 0.7;
-          ctx.stroke();
-        }
-      }
-    }
-    // Draw node dots
-    nodes.forEach(n => {
-      ctx.beginPath();
-      ctx.arc(n.x, n.y, n.r, 0, Math.PI*2);
-      ctx.fillStyle = `rgba(${ACCENT},0.45)`;
-      ctx.fill();
-    });
+    const D=130;
+    for(let i=0;i<nodes.length;i++) for(let j=i+1;j<nodes.length;j++){const dx=nodes[i].x-nodes[j].x,dy=nodes[i].y-nodes[j].y,d=Math.sqrt(dx*dx+dy*dy);if(d<D){ctx.beginPath();ctx.moveTo(nodes[i].x,nodes[i].y);ctx.lineTo(nodes[j].x,nodes[j].y);ctx.strokeStyle=`rgba(${ACCENT},${(1-d/D)*0.18})`;ctx.lineWidth=0.7;ctx.stroke();}}
+    nodes.forEach(n=>{ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,Math.PI*2);ctx.fillStyle=`rgba(${ACCENT},0.45)`;ctx.fill();});
   }
-
   function update() {
-    shapes.forEach(s => {
-      s.x += s.vx; s.y += s.vy; s.rot += s.vr;
-      if (s.x < -s.size*2) s.x = W+s.size;
-      if (s.x > W+s.size*2) s.x = -s.size;
-      if (s.y < -s.size*2) s.y = H+s.size;
-      if (s.y > H+s.size*2) s.y = -s.size;
-    });
-    particles.forEach(p => {
-      p.x += p.vx; p.y += p.vy;
-      if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
-      if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
-    });
-    nodes.forEach(n => {
-      n.x += n.vx; n.y += n.vy;
-      if (n.x < 0) n.x = W; if (n.x > W) n.x = 0;
-      if (n.y < 0) n.y = H; if (n.y > H) n.y = 0;
-    });
+    shapes.forEach(s=>{s.x+=s.vx;s.y+=s.vy;s.rot+=s.vr;if(s.x<-s.size*2)s.x=W+s.size;if(s.x>W+s.size*2)s.x=-s.size;if(s.y<-s.size*2)s.y=H+s.size;if(s.y>H+s.size*2)s.y=-s.size;});
+    particles.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0)p.x=W;if(p.x>W)p.x=0;if(p.y<0)p.y=H;if(p.y>H)p.y=0;});
+    nodes.forEach(n=>{n.x+=n.vx;n.y+=n.vy;if(n.x<0)n.x=W;if(n.x>W)n.x=0;if(n.y<0)n.y=H;if(n.y>H)n.y=0;});
   }
-
   function draw() {
-    ctx.clearRect(0, 0, W, H);
-
-    // Subtle grid
-    ctx.strokeStyle = `rgba(${ACCENT},0.028)`;
-    ctx.lineWidth = 1;
-    for (let x=0; x<W; x+=44) {
-      ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke();
-    }
-    for (let y=0; y<H; y+=44) {
-      ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke();
-    }
-
-    // Network nodes + connections
-    drawNodes();
-
-    // Floating shapes
-    shapes.forEach(drawPolygon);
-
-    // Particles
-    particles.forEach(drawParticle);
-
-    // Radial vignette glow at center
-    const grad = ctx.createRadialGradient(W*0.5,H*0.4,0, W*0.5,H*0.4,Math.max(W,H)*0.55);
-    grad.addColorStop(0, `rgba(${ACCENT},0.04)`);
-    grad.addColorStop(1, 'transparent');
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, W, H);
+    ctx.clearRect(0,0,W,H);
+    ctx.strokeStyle=`rgba(${ACCENT},0.028)`;ctx.lineWidth=1;
+    for(let x=0;x<W;x+=44){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+    for(let y=0;y<H;y+=44){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+    drawNodes(); shapes.forEach(drawPolygon); particles.forEach(drawParticle);
+    const g=ctx.createRadialGradient(W*0.5,H*0.4,0,W*0.5,H*0.4,Math.max(W,H)*0.55);
+    g.addColorStop(0,`rgba(${ACCENT},0.04)`);g.addColorStop(1,'transparent');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
   }
-
-  function loop() {
-    update();
-    draw();
-    requestAnimationFrame(loop);
-  }
-
-  window.addEventListener('resize', () => { resize(); init(); });
-  resize();
-  init();
-  loop();
+  function loop() { update(); draw(); requestAnimationFrame(loop); }
+  window.addEventListener('resize',()=>{resize();init();}); resize(); init(); loop();
 })();
 </script>
 </body>
