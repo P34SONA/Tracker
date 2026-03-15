@@ -312,12 +312,81 @@
   .tab-panel { display: none; }
   .tab-panel.active { display: block; }
 
+  /* SEARCH + TOTALS BAR */
+  .panel-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .search-wrap {
+    position: relative;
+    flex: 1;
+    max-width: 320px;
+  }
+  .search-wrap svg {
+    position: absolute;
+    left: 11px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 14px; height: 14px;
+    color: var(--mocha);
+    pointer-events: none;
+  }
+  .search-input {
+    width: 100%;
+    padding: 9px 12px 9px 34px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--warm-white);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .search-input:focus { border-color: var(--mocha); }
+  .search-input::placeholder { color: var(--sand); }
+  .tab-totals {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .tab-total-item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 1px;
+  }
+  .tab-total-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--mocha);
+    font-weight: 500;
+  }
+  .tab-total-value {
+    font-family: 'Lora', serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--espresso);
+  }
+  .tab-total-value.red { color: var(--terracotta); }
+  .tab-total-value.green { color: var(--sage); }
+  .tab-totals-divider {
+    width: 1px; height: 28px;
+    background: var(--border);
+  }
+
   /* SECTION HEADER */
   .section-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
   }
   .section-title {
     font-family: 'Lora', serif;
@@ -364,7 +433,7 @@
   thead th {
     background: var(--linen);
     padding: 11px 16px;
-    text-align: left;
+    text-align: center;
     font-size: 11px;
     font-weight: 500;
     text-transform: uppercase;
@@ -383,6 +452,7 @@
     font-size: 13px;
     color: var(--ink);
     vertical-align: middle;
+    text-align: center;
   }
   .amount-cell {
     font-family: 'Lora', serif;
@@ -713,19 +783,34 @@
         <div class="section-title">Unionbank Credit Card <small>Manage your Unionbank charges</small></div>
         <button class="add-btn" onclick="openModal('unionbank')">+ Add Entry</button>
       </div>
+      <div class="panel-toolbar">
+        <div class="search-wrap">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input class="search-input" id="search-unionbank" placeholder="Search description or notes…" oninput="filterTable('unionbank', this.value)" />
+        </div>
+        <div class="tab-totals">
+          <div class="tab-total-item">
+            <span class="tab-total-label">Total Debt</span>
+            <span class="tab-total-value red" id="tabtotal-debt-unionbank">₱0.00</span>
+          </div>
+          <div class="tab-totals-divider"></div>
+          <div class="tab-total-item">
+            <span class="tab-total-label">Total Paid</span>
+            <span class="tab-total-value green" id="tabtotal-paid-unionbank">₱0.00</span>
+          </div>
+          <div class="tab-totals-divider"></div>
+          <div class="tab-total-item">
+            <span class="tab-total-label">Remaining</span>
+            <span class="tab-total-value red" id="tabtotal-balance-unionbank">₱0.00</span>
+          </div>
+        </div>
+      </div>
       <div class="table-wrap">
         <table>
           <thead>
             <tr>
-              <th>Description</th>
-              <th>Date</th>
-              <th>Amount</th>
-              <th>Paid</th>
-              <th>Balance</th>
-              <th>Due Date</th>
-              <th>Status</th>
-              <th>Notes</th>
-              <th></th>
+              <th>Description</th><th>Date</th><th>Amount</th><th>Paid</th>
+              <th>Balance</th><th>Due Date</th><th>Status</th><th>Notes</th><th></th>
             </tr>
           </thead>
           <tbody id="tbody-unionbank">
@@ -741,19 +826,34 @@
         <div class="section-title">Maya Credit Card <small>Manage your Maya charges</small></div>
         <button class="add-btn" onclick="openModal('maya')">+ Add Entry</button>
       </div>
+      <div class="panel-toolbar">
+        <div class="search-wrap">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input class="search-input" id="search-maya" placeholder="Search description or notes…" oninput="filterTable('maya', this.value)" />
+        </div>
+        <div class="tab-totals">
+          <div class="tab-total-item">
+            <span class="tab-total-label">Total Debt</span>
+            <span class="tab-total-value red" id="tabtotal-debt-maya">₱0.00</span>
+          </div>
+          <div class="tab-totals-divider"></div>
+          <div class="tab-total-item">
+            <span class="tab-total-label">Total Paid</span>
+            <span class="tab-total-value green" id="tabtotal-paid-maya">₱0.00</span>
+          </div>
+          <div class="tab-totals-divider"></div>
+          <div class="tab-total-item">
+            <span class="tab-total-label">Remaining</span>
+            <span class="tab-total-value red" id="tabtotal-balance-maya">₱0.00</span>
+          </div>
+        </div>
+      </div>
       <div class="table-wrap">
         <table>
           <thead>
             <tr>
-              <th>Description</th>
-              <th>Date</th>
-              <th>Amount</th>
-              <th>Paid</th>
-              <th>Balance</th>
-              <th>Due Date</th>
-              <th>Status</th>
-              <th>Notes</th>
-              <th></th>
+              <th>Description</th><th>Date</th><th>Amount</th><th>Paid</th>
+              <th>Balance</th><th>Due Date</th><th>Status</th><th>Notes</th><th></th>
             </tr>
           </thead>
           <tbody id="tbody-maya">
@@ -769,19 +869,34 @@
         <div class="section-title">TikTok Credit Card <small>Manage your TikTok charges</small></div>
         <button class="add-btn" onclick="openModal('tiktok')">+ Add Entry</button>
       </div>
+      <div class="panel-toolbar">
+        <div class="search-wrap">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input class="search-input" id="search-tiktok" placeholder="Search description or notes…" oninput="filterTable('tiktok', this.value)" />
+        </div>
+        <div class="tab-totals">
+          <div class="tab-total-item">
+            <span class="tab-total-label">Total Debt</span>
+            <span class="tab-total-value red" id="tabtotal-debt-tiktok">₱0.00</span>
+          </div>
+          <div class="tab-totals-divider"></div>
+          <div class="tab-total-item">
+            <span class="tab-total-label">Total Paid</span>
+            <span class="tab-total-value green" id="tabtotal-paid-tiktok">₱0.00</span>
+          </div>
+          <div class="tab-totals-divider"></div>
+          <div class="tab-total-item">
+            <span class="tab-total-label">Remaining</span>
+            <span class="tab-total-value red" id="tabtotal-balance-tiktok">₱0.00</span>
+          </div>
+        </div>
+      </div>
       <div class="table-wrap">
         <table>
           <thead>
             <tr>
-              <th>Description</th>
-              <th>Date</th>
-              <th>Amount</th>
-              <th>Paid</th>
-              <th>Balance</th>
-              <th>Due Date</th>
-              <th>Status</th>
-              <th>Notes</th>
-              <th></th>
+              <th>Description</th><th>Date</th><th>Amount</th><th>Paid</th>
+              <th>Balance</th><th>Due Date</th><th>Status</th><th>Notes</th><th></th>
             </tr>
           </thead>
           <tbody id="tbody-tiktok">
@@ -797,21 +912,35 @@
         <div class="section-title">Installment Transactions <small>Track your installment payments</small></div>
         <button class="add-btn" onclick="openModal('installments')">+ Add Entry</button>
       </div>
+      <div class="panel-toolbar">
+        <div class="search-wrap">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input class="search-input" id="search-installments" placeholder="Search item or merchant…" oninput="filterTable('installments', this.value)" />
+        </div>
+        <div class="tab-totals">
+          <div class="tab-total-item">
+            <span class="tab-total-label">Total Debt</span>
+            <span class="tab-total-value red" id="tabtotal-debt-installments">₱0.00</span>
+          </div>
+          <div class="tab-totals-divider"></div>
+          <div class="tab-total-item">
+            <span class="tab-total-label">Total Paid</span>
+            <span class="tab-total-value green" id="tabtotal-paid-installments">₱0.00</span>
+          </div>
+          <div class="tab-totals-divider"></div>
+          <div class="tab-total-item">
+            <span class="tab-total-label">Remaining</span>
+            <span class="tab-total-value red" id="tabtotal-balance-installments">₱0.00</span>
+          </div>
+        </div>
+      </div>
       <div class="table-wrap">
         <table>
           <thead>
             <tr>
-              <th>Item</th>
-              <th>Merchant</th>
-              <th>Total Amount</th>
-              <th>Monthly</th>
-              <th>Months</th>
-              <th>Paid Months</th>
-              <th>Remaining</th>
-              <th>Start Date</th>
-              <th>Status</th>
-              <th>Notes</th>
-              <th></th>
+              <th>Item</th><th>Merchant</th><th>Total Amount</th><th>Monthly</th>
+              <th>Months</th><th>Paid Months</th><th>Remaining</th><th>Start Date</th>
+              <th>Status</th><th>Notes</th><th></th>
             </tr>
           </thead>
           <tbody id="tbody-installments">
@@ -1006,17 +1135,32 @@ function statusBadge(status) {
   return `<span class="status-badge ${map[status] || 'status-unpaid'}">${status || 'unpaid'}</span>`;
 }
 
-function renderCCTable(type) {
+function renderCCTable(type, filter = '') {
   const tbody = document.getElementById(`tbody-${type}`);
   const rows = data[type];
+  const q = filter.toLowerCase().trim();
+  const filtered = q ? rows.filter(r =>
+    (r.description || '').toLowerCase().includes(q) ||
+    (r.notes || '').toLowerCase().includes(q) ||
+    (r.date || '').includes(q)
+  ) : rows;
+
   document.getElementById(`count${type.charAt(0).toUpperCase() + type.slice(1)}`).textContent = rows.length;
 
-  if (!rows.length) {
-    tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">📋</div><p>No entries yet. Click "+ Add Entry" to get started.</p></div></td></tr>`;
+  // Tab totals (always from full data, not filtered)
+  const debt = rows.reduce((s, r) => s + (r.amount || 0), 0);
+  const paid = rows.reduce((s, r) => s + (r.paid || 0), 0);
+  document.getElementById(`tabtotal-debt-${type}`).textContent = fmt(debt);
+  document.getElementById(`tabtotal-paid-${type}`).textContent = fmt(paid);
+  document.getElementById(`tabtotal-balance-${type}`).textContent = fmt(debt - paid);
+
+  if (!filtered.length) {
+    const msg = q ? 'No results match your search.' : 'No entries yet. Click "+ Add Entry" to get started.';
+    tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">📋</div><p>${msg}</p></div></td></tr>`;
     return;
   }
 
-  tbody.innerHTML = rows.map(r => `
+  tbody.innerHTML = filtered.map(r => `
     <tr>
       <td>${r.description || '—'}</td>
       <td>${r.date || '—'}</td>
@@ -1027,7 +1171,7 @@ function renderCCTable(type) {
       <td>${statusBadge(r.status)}</td>
       <td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--mocha)">${r.notes || '—'}</td>
       <td>
-        <div class="action-btns">
+        <div class="action-btns" style="justify-content:center">
           <button class="edit-btn" onclick="openModal('${type}', '${r.id}')">Edit</button>
           <button class="del-btn" onclick="deleteEntry('${type}', '${r.id}')">✕</button>
         </div>
@@ -1036,32 +1180,47 @@ function renderCCTable(type) {
   `).join('');
 }
 
-function renderInstallmentsTable() {
+function renderInstallmentsTable(filter = '') {
   const tbody = document.getElementById('tbody-installments');
   const rows = data.installments;
+  const q = filter.toLowerCase().trim();
+  const filtered = q ? rows.filter(r =>
+    (r.item || '').toLowerCase().includes(q) ||
+    (r.merchant || '').toLowerCase().includes(q) ||
+    (r.notes || '').toLowerCase().includes(q)
+  ) : rows;
+
   document.getElementById('countInstallments').textContent = rows.length;
 
-  if (!rows.length) {
-    tbody.innerHTML = `<tr><td colspan="11"><div class="empty-state"><div class="empty-icon">📋</div><p>No installments yet. Click "+ Add Entry" to get started.</p></div></td></tr>`;
+  // Tab totals
+  const debt = rows.reduce((s, r) => s + (r.total_amount || 0), 0);
+  const paid = rows.reduce((s, r) => s + ((r.paid_months || 0) * (r.monthly || 0)), 0);
+  document.getElementById('tabtotal-debt-installments').textContent = fmt(debt);
+  document.getElementById('tabtotal-paid-installments').textContent = fmt(paid);
+  document.getElementById('tabtotal-balance-installments').textContent = fmt(debt - paid);
+
+  if (!filtered.length) {
+    const msg = q ? 'No results match your search.' : 'No installments yet. Click "+ Add Entry" to get started.';
+    tbody.innerHTML = `<tr><td colspan="11"><div class="empty-state"><div class="empty-icon">📋</div><p>${msg}</p></div></td></tr>`;
     return;
   }
 
-  tbody.innerHTML = rows.map(r => {
+  tbody.innerHTML = filtered.map(r => {
     const remaining = (r.total_months || 0) - (r.paid_months || 0);
     const remainingAmt = remaining * (r.monthly || 0);
     return `<tr>
-      <td><strong style="font-weight:500">${r.item || '—'}</strong></td>
+      <td style="font-weight:500">${r.item || '—'}</td>
       <td>${r.merchant || '—'}</td>
       <td class="amount-cell">${fmt(r.total_amount)}</td>
       <td style="color:var(--mocha)">${fmt(r.monthly)}</td>
-      <td style="text-align:center">${r.total_months || 0}</td>
-      <td style="text-align:center;color:var(--sage);font-weight:500">${r.paid_months || 0}</td>
+      <td>${r.total_months || 0}</td>
+      <td style="color:var(--sage);font-weight:500">${r.paid_months || 0}</td>
       <td class="balance-cell">${fmt(remainingAmt)}</td>
       <td>${r.start_date || '—'}</td>
       <td>${statusBadge(r.status)}</td>
       <td style="max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--mocha)">${r.notes || '—'}</td>
       <td>
-        <div class="action-btns">
+        <div class="action-btns" style="justify-content:center">
           <button class="edit-btn" onclick="openModal('installments', '${r.id}')">Edit</button>
           <button class="del-btn" onclick="deleteEntry('installments', '${r.id}')">✕</button>
         </div>
@@ -1096,6 +1255,14 @@ function renderAll() {
   renderCCTable('tiktok');
   renderInstallmentsTable();
   renderSummary();
+}
+
+function filterTable(type, value) {
+  if (type === 'installments') {
+    renderInstallmentsTable(value);
+  } else {
+    renderCCTable(type, value);
+  }
 }
 
 // ============ TABS ============
