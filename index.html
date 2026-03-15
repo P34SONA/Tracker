@@ -507,6 +507,65 @@
   }
   .del-btn:hover { background: #FDE8D8; color: var(--terracotta); border-color: #F5C4A0; }
 
+  /* BULK DELETE */
+  .bulk-bar {
+    display: none;
+    align-items: center;
+    gap: 12px;
+    background: #FDE8D8;
+    border: 1px solid #F5C4A0;
+    border-radius: 8px;
+    padding: 9px 14px;
+    margin-bottom: 12px;
+    animation: fadeIn 0.2s ease;
+  }
+  .bulk-bar.visible { display: flex; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+  .bulk-info {
+    font-size: 13px;
+    color: #7A3A1A;
+    font-weight: 500;
+    flex: 1;
+  }
+  .bulk-del-btn {
+    padding: 7px 14px;
+    background: var(--terracotta);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .bulk-del-btn:hover { background: #9A4A30; }
+  .bulk-cancel-btn {
+    padding: 7px 12px;
+    background: none;
+    border: 1px solid #E8A888;
+    border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    color: #7A3A1A;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .bulk-cancel-btn:hover { background: #FAD0B8; }
+
+  /* ROW CHECKBOX */
+  .row-check {
+    width: 16px; height: 16px;
+    cursor: pointer;
+    accent-color: var(--terracotta);
+    flex-shrink: 0;
+  }
+  thead th.check-col, td.check-col {
+    width: 40px;
+    padding: 11px 8px 11px 14px;
+  }
+  tr.selected-row { background: #FEF3EC !important; }
+
   .empty-state {
     text-align: center;
     padding: 48px 24px;
@@ -786,7 +845,7 @@
       <div class="panel-toolbar">
         <div class="search-wrap">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-          <input class="search-input" id="search-unionbank" placeholder="Search description or notes…" oninput="filterTable('unionbank', this.value)" />
+          <input class="search-input" id="search-unionbank" placeholder="Search name or notes…" oninput="filterTable('unionbank', this.value)" />
         </div>
         <div class="tab-totals">
           <div class="tab-total-item">
@@ -805,16 +864,22 @@
           </div>
         </div>
       </div>
+      <div class="bulk-bar" id="bulk-unionbank">
+        <span class="bulk-info" id="bulk-info-unionbank">0 selected</span>
+        <button class="bulk-cancel-btn" onclick="clearSelection('unionbank')">Cancel</button>
+        <button class="bulk-del-btn" onclick="bulkDelete('unionbank')">Delete Selected</button>
+      </div>
       <div class="table-wrap">
         <table>
           <thead>
             <tr>
-              <th>Description</th><th>Date</th><th>Amount</th><th>Paid</th>
+              <th class="check-col"><input type="checkbox" class="row-check" id="checkall-unionbank" onchange="toggleSelectAll('unionbank', this.checked)" /></th>
+              <th>Name</th><th>Date</th><th>Amount</th><th>Paid</th>
               <th>Balance</th><th>Due Date</th><th>Status</th><th>Notes</th><th></th>
             </tr>
           </thead>
           <tbody id="tbody-unionbank">
-            <tr><td colspan="9"><div class="loading"><div class="spinner"></div> Loading...</div></td></tr>
+            <tr><td colspan="10"><div class="loading"><div class="spinner"></div> Loading...</div></td></tr>
           </tbody>
         </table>
       </div>
@@ -829,7 +894,7 @@
       <div class="panel-toolbar">
         <div class="search-wrap">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-          <input class="search-input" id="search-maya" placeholder="Search description or notes…" oninput="filterTable('maya', this.value)" />
+          <input class="search-input" id="search-maya" placeholder="Search name or notes…" oninput="filterTable('maya', this.value)" />
         </div>
         <div class="tab-totals">
           <div class="tab-total-item">
@@ -848,16 +913,22 @@
           </div>
         </div>
       </div>
+      <div class="bulk-bar" id="bulk-maya">
+        <span class="bulk-info" id="bulk-info-maya">0 selected</span>
+        <button class="bulk-cancel-btn" onclick="clearSelection('maya')">Cancel</button>
+        <button class="bulk-del-btn" onclick="bulkDelete('maya')">Delete Selected</button>
+      </div>
       <div class="table-wrap">
         <table>
           <thead>
             <tr>
-              <th>Description</th><th>Date</th><th>Amount</th><th>Paid</th>
+              <th class="check-col"><input type="checkbox" class="row-check" id="checkall-maya" onchange="toggleSelectAll('maya', this.checked)" /></th>
+              <th>Name</th><th>Date</th><th>Amount</th><th>Paid</th>
               <th>Balance</th><th>Due Date</th><th>Status</th><th>Notes</th><th></th>
             </tr>
           </thead>
           <tbody id="tbody-maya">
-            <tr><td colspan="9"><div class="loading"><div class="spinner"></div> Loading...</div></td></tr>
+            <tr><td colspan="10"><div class="loading"><div class="spinner"></div> Loading...</div></td></tr>
           </tbody>
         </table>
       </div>
@@ -872,7 +943,7 @@
       <div class="panel-toolbar">
         <div class="search-wrap">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-          <input class="search-input" id="search-tiktok" placeholder="Search description or notes…" oninput="filterTable('tiktok', this.value)" />
+          <input class="search-input" id="search-tiktok" placeholder="Search name or notes…" oninput="filterTable('tiktok', this.value)" />
         </div>
         <div class="tab-totals">
           <div class="tab-total-item">
@@ -891,16 +962,22 @@
           </div>
         </div>
       </div>
+      <div class="bulk-bar" id="bulk-tiktok">
+        <span class="bulk-info" id="bulk-info-tiktok">0 selected</span>
+        <button class="bulk-cancel-btn" onclick="clearSelection('tiktok')">Cancel</button>
+        <button class="bulk-del-btn" onclick="bulkDelete('tiktok')">Delete Selected</button>
+      </div>
       <div class="table-wrap">
         <table>
           <thead>
             <tr>
-              <th>Description</th><th>Date</th><th>Amount</th><th>Paid</th>
+              <th class="check-col"><input type="checkbox" class="row-check" id="checkall-tiktok" onchange="toggleSelectAll('tiktok', this.checked)" /></th>
+              <th>Name</th><th>Date</th><th>Amount</th><th>Paid</th>
               <th>Balance</th><th>Due Date</th><th>Status</th><th>Notes</th><th></th>
             </tr>
           </thead>
           <tbody id="tbody-tiktok">
-            <tr><td colspan="9"><div class="loading"><div class="spinner"></div> Loading...</div></td></tr>
+            <tr><td colspan="10"><div class="loading"><div class="spinner"></div> Loading...</div></td></tr>
           </tbody>
         </table>
       </div>
@@ -934,17 +1011,23 @@
           </div>
         </div>
       </div>
+      <div class="bulk-bar" id="bulk-installments">
+        <span class="bulk-info" id="bulk-info-installments">0 selected</span>
+        <button class="bulk-cancel-btn" onclick="clearSelection('installments')">Cancel</button>
+        <button class="bulk-del-btn" onclick="bulkDelete('installments')">Delete Selected</button>
+      </div>
       <div class="table-wrap">
         <table>
           <thead>
             <tr>
+              <th class="check-col"><input type="checkbox" class="row-check" id="checkall-installments" onchange="toggleSelectAll('installments', this.checked)" /></th>
               <th>Item</th><th>Merchant</th><th>Total Amount</th><th>Monthly</th>
               <th>Months</th><th>Paid Months</th><th>Remaining</th><th>Start Date</th>
               <th>Status</th><th>Notes</th><th></th>
             </tr>
           </thead>
           <tbody id="tbody-installments">
-            <tr><td colspan="11"><div class="loading"><div class="spinner"></div> Loading...</div></td></tr>
+            <tr><td colspan="12"><div class="loading"><div class="spinner"></div> Loading...</div></td></tr>
           </tbody>
         </table>
       </div>
@@ -972,6 +1055,7 @@ let sbClient = null;
 let useLocal = false;
 let currentModal = { type: null, id: null };
 let data = { unionbank: [], maya: [], tiktok: [], installments: [] };
+let selectedRows = { unionbank: new Set(), maya: new Set(), tiktok: new Set(), installments: new Set() };
 
 // LOCAL STORAGE KEYS
 const LS_KEYS = {
@@ -980,6 +1064,7 @@ const LS_KEYS = {
   tiktok: 'ledger_tiktok',
   installments: 'ledger_installments'
 };
+const SESSION_KEY = 'ledger_session';
 
 // ============ SUPABASE SETUP ============
 function initSupabase() {
@@ -1012,6 +1097,7 @@ function initSupabase() {
 
 function skipSupabase() {
   useLocal = true;
+  localStorage.setItem('ledger_mode', 'local');
   document.getElementById('setupOverlay').style.display = 'none';
   document.getElementById('loginOverlay').style.display = 'flex';
   document.getElementById('dbStatus').textContent = 'Local';
@@ -1028,13 +1114,18 @@ async function createTablesIfNeeded() {
 // ============ LOGIN ============
 const ADMIN = { user: 'admin', pass: 'admin123' };
 
+function showApp() {
+  document.getElementById('loginOverlay').style.display = 'none';
+  document.getElementById('app').classList.add('active');
+  loadAllData();
+}
+
 function doLogin() {
   const u = document.getElementById('loginUser').value;
   const p = document.getElementById('loginPass').value;
   if (u === ADMIN.user && p === ADMIN.pass) {
-    document.getElementById('loginOverlay').style.display = 'none';
-    document.getElementById('app').classList.add('active');
-    loadAllData();
+    localStorage.setItem(SESSION_KEY, 'true');
+    showApp();
   } else {
     document.getElementById('loginError').textContent = 'Invalid credentials.';
   }
@@ -1044,6 +1135,7 @@ document.getElementById('loginUser').addEventListener('keydown', e => { if (e.ke
 document.getElementById('loginPass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
 
 function doLogout() {
+  localStorage.removeItem(SESSION_KEY);
   document.getElementById('app').classList.remove('active');
   document.getElementById('loginOverlay').style.display = 'flex';
   document.getElementById('loginUser').value = '';
@@ -1147,7 +1239,6 @@ function renderCCTable(type, filter = '') {
 
   document.getElementById(`count${type.charAt(0).toUpperCase() + type.slice(1)}`).textContent = rows.length;
 
-  // Tab totals (always from full data, not filtered)
   const debt = rows.reduce((s, r) => s + (r.amount || 0), 0);
   const paid = rows.reduce((s, r) => s + (r.paid || 0), 0);
   document.getElementById(`tabtotal-debt-${type}`).textContent = fmt(debt);
@@ -1156,12 +1247,15 @@ function renderCCTable(type, filter = '') {
 
   if (!filtered.length) {
     const msg = q ? 'No results match your search.' : 'No entries yet. Click "+ Add Entry" to get started.';
-    tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">📋</div><p>${msg}</p></div></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="10"><div class="empty-state"><div class="empty-icon">📋</div><p>${msg}</p></div></td></tr>`;
     return;
   }
 
-  tbody.innerHTML = filtered.map(r => `
-    <tr>
+  tbody.innerHTML = filtered.map(r => {
+    const checked = selectedRows[type].has(r.id) ? 'checked' : '';
+    const rowClass = selectedRows[type].has(r.id) ? 'selected-row' : '';
+    return `<tr class="${rowClass}" id="row-${type}-${r.id}">
+      <td class="check-col"><input type="checkbox" class="row-check" ${checked} onchange="toggleRowSelect('${type}', '${r.id}', this.checked)" /></td>
       <td>${r.description || '—'}</td>
       <td>${r.date || '—'}</td>
       <td class="amount-cell">${fmt(r.amount)}</td>
@@ -1176,8 +1270,8 @@ function renderCCTable(type, filter = '') {
           <button class="del-btn" onclick="deleteEntry('${type}', '${r.id}')">✕</button>
         </div>
       </td>
-    </tr>
-  `).join('');
+    </tr>`;
+  }).join('');
 }
 
 function renderInstallmentsTable(filter = '') {
@@ -1192,7 +1286,6 @@ function renderInstallmentsTable(filter = '') {
 
   document.getElementById('countInstallments').textContent = rows.length;
 
-  // Tab totals
   const debt = rows.reduce((s, r) => s + (r.total_amount || 0), 0);
   const paid = rows.reduce((s, r) => s + ((r.paid_months || 0) * (r.monthly || 0)), 0);
   document.getElementById('tabtotal-debt-installments').textContent = fmt(debt);
@@ -1201,14 +1294,17 @@ function renderInstallmentsTable(filter = '') {
 
   if (!filtered.length) {
     const msg = q ? 'No results match your search.' : 'No installments yet. Click "+ Add Entry" to get started.';
-    tbody.innerHTML = `<tr><td colspan="11"><div class="empty-state"><div class="empty-icon">📋</div><p>${msg}</p></div></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="12"><div class="empty-state"><div class="empty-icon">📋</div><p>${msg}</p></div></td></tr>`;
     return;
   }
 
   tbody.innerHTML = filtered.map(r => {
     const remaining = (r.total_months || 0) - (r.paid_months || 0);
     const remainingAmt = remaining * (r.monthly || 0);
-    return `<tr>
+    const checked = selectedRows.installments.has(r.id) ? 'checked' : '';
+    const rowClass = selectedRows.installments.has(r.id) ? 'selected-row' : '';
+    return `<tr class="${rowClass}" id="row-installments-${r.id}">
+      <td class="check-col"><input type="checkbox" class="row-check" ${checked} onchange="toggleRowSelect('installments', '${r.id}', this.checked)" /></td>
       <td style="font-weight:500">${r.item || '—'}</td>
       <td>${r.merchant || '—'}</td>
       <td class="amount-cell">${fmt(r.total_amount)}</td>
@@ -1324,8 +1420,8 @@ function openModal(type, id = null) {
 
 function creditCardForm(r) {
   return `
-    <div class="form-group"><label>Description</label>
-      <input name="description" value="${r?.description || ''}" placeholder="e.g. Online shopping, Restaurant" /></div>
+    <div class="form-group"><label>Name</label>
+      <input name="description" value="${r?.description || ''}" placeholder="e.g. Liza, Berna, Rose" /></div>
     <div class="form-row">
       <div class="form-group"><label>Transaction Date</label>
         <input type="date" name="date" value="${r?.date || ''}" /></div>
@@ -1408,7 +1504,7 @@ async function saveEntry() {
     showToast('Please enter an item name.', true); return;
   }
   if (type !== 'installments' && !fields.description) {
-    showToast('Please enter a description.', true); return;
+    showToast('Please enter a name.', true); return;
   }
 
   const record = { ...fields };
@@ -1440,8 +1536,82 @@ async function deleteEntry(type, id) {
   if (!confirm('Delete this entry?')) return;
   const { error } = await deleteFromDb(type, id);
   if (error) { showToast('Error deleting.', true); return; }
+  selectedRows[type].delete(id);
   await loadAllData();
   showToast('Entry deleted.');
+}
+
+// ============ BULK DELETE ============
+function toggleRowSelect(type, id, checked) {
+  if (checked) {
+    selectedRows[type].add(id);
+  } else {
+    selectedRows[type].delete(id);
+  }
+  updateBulkBar(type);
+
+  // Update row highlight
+  const row = document.getElementById(`row-${type}-${id}`);
+  if (row) row.classList.toggle('selected-row', checked);
+
+  // Update select-all checkbox state
+  const allIds = data[type].map(r => r.id);
+  const allChecked = allIds.length > 0 && allIds.every(i => selectedRows[type].has(i));
+  const selectAllEl = document.getElementById(`checkall-${type}`);
+  if (selectAllEl) selectAllEl.checked = allChecked;
+}
+
+function toggleSelectAll(type, checked) {
+  const rows = data[type];
+  if (checked) {
+    rows.forEach(r => selectedRows[type].add(r.id));
+  } else {
+    selectedRows[type].clear();
+  }
+  updateBulkBar(type);
+  // Re-render to reflect all checkboxes
+  const filter = document.getElementById(`search-${type}`)?.value || '';
+  if (type === 'installments') renderInstallmentsTable(filter);
+  else renderCCTable(type, filter);
+}
+
+function updateBulkBar(type) {
+  const count = selectedRows[type].size;
+  const bar = document.getElementById(`bulk-${type}`);
+  const info = document.getElementById(`bulk-info-${type}`);
+  if (bar) bar.classList.toggle('visible', count > 0);
+  if (info) info.textContent = `${count} row${count !== 1 ? 's' : ''} selected`;
+}
+
+function clearSelection(type) {
+  selectedRows[type].clear();
+  updateBulkBar(type);
+  const selectAllEl = document.getElementById(`checkall-${type}`);
+  if (selectAllEl) selectAllEl.checked = false;
+  const filter = document.getElementById(`search-${type}`)?.value || '';
+  if (type === 'installments') renderInstallmentsTable(filter);
+  else renderCCTable(type, filter);
+}
+
+async function bulkDelete(type) {
+  const ids = [...selectedRows[type]];
+  if (!ids.length) return;
+  if (!confirm(`Delete ${ids.length} selected entr${ids.length !== 1 ? 'ies' : 'y'}? This cannot be undone.`)) return;
+
+  let errCount = 0;
+  for (const id of ids) {
+    const { error } = await deleteFromDb(type, id);
+    if (error) errCount++;
+  }
+  selectedRows[type].clear();
+  const selectAllEl = document.getElementById(`checkall-${type}`);
+  if (selectAllEl) selectAllEl.checked = false;
+  await loadAllData();
+  if (errCount > 0) {
+    showToast(`Deleted with ${errCount} error(s).`, true);
+  } else {
+    showToast(`${ids.length} entr${ids.length !== 1 ? 'ies' : 'y'} deleted.`);
+  }
 }
 
 // ============ TOAST ============
@@ -1457,16 +1627,27 @@ function showToast(msg, isError = false) {
 window.addEventListener('load', () => {
   const savedUrl = localStorage.getItem('sb_url');
   const savedKey = localStorage.getItem('sb_key');
+  const hasSession = localStorage.getItem(SESSION_KEY) === 'true';
+
   if (savedUrl && savedKey) {
     try {
       sbClient = window.supabase.createClient(savedUrl, savedKey);
       document.getElementById('dbDot').classList.add('connected');
       document.getElementById('dbStatus').textContent = 'Supabase';
       document.getElementById('setupOverlay').style.display = 'none';
-      document.getElementById('loginOverlay').style.display = 'flex';
+      if (hasSession) {
+        showApp();
+      } else {
+        document.getElementById('loginOverlay').style.display = 'flex';
+      }
     } catch (e) {
       // show setup
     }
+  } else if (hasSession) {
+    // local mode, already logged in
+    useLocal = true;
+    document.getElementById('setupOverlay').style.display = 'none';
+    showApp();
   }
 });
 
