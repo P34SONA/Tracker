@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -838,7 +839,7 @@
 
 <script>
 // ============ STATE ============
-let supabase = null;
+let sbClient = null;
 let useLocal = false;
 let currentModal = { type: null, id: null };
 let data = { unionbank: [], maya: [], tiktok: [], installments: [] };
@@ -867,7 +868,7 @@ function initSupabase() {
   }
 
   try {
-    supabase = window.supabase.createClient(url, key);
+    sbClient = window.supabase.createClient(url, key);
     localStorage.setItem('sb_url', url);
     localStorage.setItem('sb_key', key);
     document.getElementById('setupOverlay').style.display = 'none';
@@ -888,9 +889,8 @@ function skipSupabase() {
 }
 
 async function createTablesIfNeeded() {
-  if (!supabase) return;
-  // Try to read — if tables don't exist, show SQL hint
-  const { error } = await supabase.from('credit_cards').select('id').limit(1);
+  if (!sbClient) return;
+  const { error } = await sbClient.from('credit_cards').select('id').limit(1);
   if (error && error.code === '42P01') {
     showToast('Tables not found. Please run the SQL schema in Supabase.', true);
   }
@@ -935,15 +935,15 @@ function localSet(type, arr) {
 }
 
 async function loadAllData() {
-  if (useLocal || !supabase) {
+  if (useLocal || !sbClient) {
     data.unionbank = localGet('unionbank');
     data.maya = localGet('maya');
     data.tiktok = localGet('tiktok');
     data.installments = localGet('installments');
   } else {
     const [cc, inst] = await Promise.all([
-      supabase.from('credit_cards').select('*').order('created_at', { ascending: false }),
-      supabase.from('installments').select('*').order('created_at', { ascending: false })
+      sbClient.from('credit_cards').select('*').order('created_at', { ascending: false }),
+      sbClient.from('installments').select('*').order('created_at', { ascending: false })
     ]);
     if (!cc.error) {
       data.unionbank = cc.data.filter(r => r.card_type === 'unionbank');
@@ -956,7 +956,7 @@ async function loadAllData() {
 }
 
 async function saveToDb(type, record, isEdit) {
-  if (useLocal || !supabase) {
+  if (useLocal || !sbClient) {
     let arr = localGet(type);
     if (isEdit) {
       arr = arr.map(r => r.id === record.id ? record : r);
@@ -970,28 +970,28 @@ async function saveToDb(type, record, isEdit) {
 
   if (type === 'installments') {
     if (isEdit) {
-      return await supabase.from('installments').update(record).eq('id', record.id).select().single();
+      return await sbClient.from('installments').update(record).eq('id', record.id).select().single();
     } else {
-      return await supabase.from('installments').insert(record).select().single();
+      return await sbClient.from('installments').insert(record).select().single();
     }
   } else {
     const dbRecord = { ...record, card_type: type };
     if (isEdit) {
-      return await supabase.from('credit_cards').update(dbRecord).eq('id', record.id).select().single();
+      return await sbClient.from('credit_cards').update(dbRecord).eq('id', record.id).select().single();
     } else {
-      return await supabase.from('credit_cards').insert(dbRecord).select().single();
+      return await sbClient.from('credit_cards').insert(dbRecord).select().single();
     }
   }
 }
 
 async function deleteFromDb(type, id) {
-  if (useLocal || !supabase) {
+  if (useLocal || !sbClient) {
     let arr = localGet(type).filter(r => r.id !== id);
     localSet(type, arr);
     return { error: null };
   }
   const table = type === 'installments' ? 'installments' : 'credit_cards';
-  return await supabase.from(table).delete().eq('id', id);
+  return await sbClient.from(table).delete().eq('id', id);
 }
 
 // ============ RENDER ============
@@ -1292,7 +1292,7 @@ window.addEventListener('load', () => {
   const savedKey = localStorage.getItem('sb_key');
   if (savedUrl && savedKey) {
     try {
-      supabase = window.supabase.createClient(savedUrl, savedKey);
+      sbClient = window.supabase.createClient(savedUrl, savedKey);
       document.getElementById('dbDot').classList.add('connected');
       document.getElementById('dbStatus').textContent = 'Supabase';
       document.getElementById('setupOverlay').style.display = 'none';
