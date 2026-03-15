@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ledger — Debt Records</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root {
+    --cream: #F7F4EE;
+    --warm-white: #FDFBF7;
+    --linen: #EDE8DE;
+    --sand: #D4CBB8;
+    --mocha: #8B7355;
+    --espresso: #4A3728;
+    --ink: #2C2420;
+    --sage: #7A8C7E;
+    --dusty-rose: #C49A8A;
+    --terracotta: #B5674A;
+    --muted-gold: #C4A96B;
+    --soft-red: #C46B6B;
+    --card-bg: #FDFAF5;
+    --border: #DDD5C5;
+    --border-light: #EAE4D8;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* LOGIN */
+  .login-overlay {
+    position: fixed; inset: 0;
+    background: var(--cream);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 100;
+  }
+  .login-box {
+    background: var(--warm-white);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 48px 40px;
+    width: 360px;
+    text-align: center;
+  }
+  .login-box .brand {
+    font-family: 'Lora', serif;
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--espresso);
+    letter-spacing: -0.5px;
+    margin-bottom: 4px;
+  }
+  .login-box .brand-sub {
+    font-size: 12px;
+    color: var(--mocha);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 36px;
+  }
+  .login-box input {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--cream);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--ink);
+    margin-bottom: 12px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .login-box input:focus { border-color: var(--mocha); }
+  .login-btn {
+    width: 100%;
+    padding: 12px;
+    background: var(--espresso);
+    color: var(--cream);
+    border: none;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: 4px;
+  }
+  .login-btn:hover { background: var(--ink); }
+  .login-error {
+    color: var(--soft-red);
+    font-size: 12px;
+    margin-top: 8px;
+    min-height: 18px;
+  }
+
+  /* SUPABASE SETUP */
+  .setup-overlay {
+    position: fixed; inset: 0;
+    background: var(--cream);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 200;
+  }
+  .setup-box {
+    background: var(--warm-white);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 48px 40px;
+    width: 440px;
+  }
+  .setup-box h2 {
+    font-family: 'Lora', serif;
+    font-size: 22px;
+    color: var(--espresso);
+    margin-bottom: 6px;
+  }
+  .setup-box p {
+    font-size: 13px;
+    color: var(--mocha);
+    margin-bottom: 24px;
+    line-height: 1.5;
+  }
+  .setup-box label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--mocha);
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+  }
+  .setup-box input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--cream);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    color: var(--ink);
+    margin-bottom: 16px;
+    outline: none;
+  }
+  .setup-box input:focus { border-color: var(--mocha); }
+  .setup-note {
+    font-size: 12px;
+    color: var(--mocha);
+    background: var(--linen);
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-bottom: 20px;
+    line-height: 1.6;
+  }
+  .setup-note code {
+    font-family: monospace;
+    font-size: 11px;
+    background: var(--sand);
+    padding: 1px 5px;
+    border-radius: 4px;
+    color: var(--espresso);
+  }
+
+  /* APP LAYOUT */
+  .app { display: none; min-height: 100vh; }
+  .app.active { display: flex; flex-direction: column; }
+
+  /* HEADER */
+  header {
+    background: var(--warm-white);
+    border-bottom: 1px solid var(--border-light);
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .logo {
+    font-family: 'Lora', serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--espresso);
+    letter-spacing: -0.3px;
+  }
+  .logo span {
+    font-style: italic;
+    color: var(--mocha);
+  }
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .admin-badge {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--mocha);
+    background: var(--linen);
+    padding: 4px 10px;
+    border-radius: 20px;
+  }
+  .logout-btn {
+    font-size: 12px;
+    color: var(--mocha);
+    background: none;
+    border: 1px solid var(--border);
+    padding: 5px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.2s;
+  }
+  .logout-btn:hover { background: var(--linen); color: var(--espresso); }
+
+  /* SUMMARY BAR */
+  .summary-bar {
+    background: var(--warm-white);
+    border-bottom: 1px solid var(--border-light);
+    padding: 16px 32px;
+    display: flex;
+    gap: 24px;
+    align-items: center;
+  }
+  .summary-card {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .summary-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--mocha);
+    font-weight: 500;
+  }
+  .summary-value {
+    font-family: 'Lora', serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--espresso);
+  }
+  .summary-value.danger { color: var(--terracotta); }
+  .summary-divider {
+    width: 1px;
+    height: 36px;
+    background: var(--border);
+  }
+
+  /* TABS */
+  .tabs-container {
+    padding: 24px 32px 0;
+  }
+  .tabs {
+    display: flex;
+    gap: 4px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0;
+  }
+  .tab-btn {
+    padding: 10px 20px;
+    background: none;
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--mocha);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .tab-btn:hover { color: var(--espresso); }
+  .tab-btn.active {
+    color: var(--espresso);
+    font-weight: 500;
+    border-bottom-color: var(--espresso);
+  }
+  .tab-count {
+    font-size: 10px;
+    background: var(--linen);
+    color: var(--mocha);
+    padding: 2px 7px;
+    border-radius: 10px;
+    font-weight: 500;
+  }
+  .tab-btn.active .tab-count {
+    background: var(--espresso);
+    color: var(--cream);
+  }
+
+  /* CONTENT */
+  .content {
+    padding: 24px 32px;
+    flex: 1;
+  }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* SECTION HEADER */
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .section-title {
+    font-family: 'Lora', serif;
+    font-size: 18px;
+    color: var(--espresso);
+    font-weight: 500;
+  }
+  .section-title small {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    color: var(--mocha);
+    font-weight: 400;
+    margin-left: 8px;
+    font-style: normal;
+  }
+  .add-btn {
+    padding: 9px 18px;
+    background: var(--espresso);
+    color: var(--cream);
+    border: none;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .add-btn:hover { background: var(--ink); }
+
+  /* TABLE */
+  .table-wrap {
+    background: var(--card-bg);
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  thead th {
+    background: var(--linen);
+    padding: 11px 16px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--mocha);
+    border-bottom: 1px solid var(--border);
+  }
+  tbody tr {
+    border-bottom: 1px solid var(--border-light);
+    transition: background 0.15s;
+  }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--cream); }
+  td {
+    padding: 13px 16px;
+    font-size: 13px;
+    color: var(--ink);
+    vertical-align: middle;
+  }
+  .amount-cell {
+    font-family: 'Lora', serif;
+    font-weight: 500;
+    color: var(--terracotta);
+  }
+  .paid-cell {
+    font-family: 'Lora', serif;
+    font-weight: 500;
+    color: var(--sage);
+  }
+  .balance-cell {
+    font-family: 'Lora', serif;
+    font-weight: 600;
+    color: var(--espresso);
+  }
+  .status-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+  .status-unpaid { background: #FDE8D8; color: #8B4A2A; }
+  .status-partial { background: #FDF3D8; color: #8B6A2A; }
+  .status-paid { background: #E0EDE0; color: #2A5A2A; }
+  .status-overdue { background: #F8E0E0; color: #7A2020; }
+
+  .action-btns {
+    display: flex;
+    gap: 6px;
+  }
+  .edit-btn, .del-btn {
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    border: 1px solid;
+    transition: all 0.15s;
+  }
+  .edit-btn {
+    background: none;
+    border-color: var(--border);
+    color: var(--mocha);
+  }
+  .edit-btn:hover { background: var(--linen); color: var(--espresso); border-color: var(--mocha); }
+  .del-btn {
+    background: none;
+    border-color: transparent;
+    color: var(--sand);
+  }
+  .del-btn:hover { background: #FDE8D8; color: var(--terracotta); border-color: #F5C4A0; }
+
+  .empty-state {
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--mocha);
+  }
+  .empty-state p { font-size: 13px; margin-top: 8px; }
+  .empty-icon {
+    font-size: 32px;
+    margin-bottom: 8px;
+    opacity: 0.4;
+  }
+
+  /* MODAL */
+  .modal-backdrop {
+    position: fixed; inset: 0;
+    background: rgba(44,36,32,0.35);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 50;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  .modal-backdrop.open {
+    opacity: 1;
+    pointer-events: all;
+  }
+  .modal {
+    background: var(--warm-white);
+    border-radius: 16px;
+    padding: 32px;
+    width: 460px;
+    max-width: 95vw;
+    max-height: 90vh;
+    overflow-y: auto;
+    transform: translateY(8px);
+    transition: transform 0.2s;
+    border: 1px solid var(--border);
+  }
+  .modal-backdrop.open .modal { transform: translateY(0); }
+  .modal h3 {
+    font-family: 'Lora', serif;
+    font-size: 18px;
+    color: var(--espresso);
+    margin-bottom: 20px;
+  }
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .form-group {
+    margin-bottom: 14px;
+  }
+  .form-group label {
+    display: block;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--mocha);
+    margin-bottom: 6px;
+  }
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--cream);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus { border-color: var(--mocha); }
+  .form-group textarea { resize: vertical; min-height: 72px; }
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-light);
+  }
+  .cancel-btn {
+    padding: 9px 18px;
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    color: var(--mocha);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .cancel-btn:hover { background: var(--linen); }
+  .save-btn {
+    padding: 9px 20px;
+    background: var(--espresso);
+    color: var(--cream);
+    border: none;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .save-btn:hover { background: var(--ink); }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--espresso);
+    color: var(--cream);
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 13px;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: all 0.3s;
+    z-index: 999;
+    pointer-events: none;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+  .toast.error { background: var(--terracotta); }
+
+  /* LOADING */
+  .loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    color: var(--mocha);
+    font-size: 13px;
+    gap: 10px;
+  }
+  .spinner {
+    width: 18px; height: 18px;
+    border: 2px solid var(--border);
+    border-top-color: var(--mocha);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .db-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--mocha);
+    padding: 4px 10px;
+    background: var(--linen);
+    border-radius: 20px;
+  }
+  .db-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--sand);
+  }
+  .db-dot.connected { background: var(--sage); }
+  .db-dot.error { background: var(--soft-red); }
+
+  @media (max-width: 768px) {
+    header, .summary-bar, .tabs-container, .content { padding-left: 16px; padding-right: 16px; }
+    .form-row { grid-template-columns: 1fr; }
+    .summary-bar { flex-wrap: wrap; gap: 12px; }
+    table { display: block; overflow-x: auto; }
+  }
+</style>
+</head>
+<body>
+
+<!-- SUPABASE SETUP -->
+<div class="setup-overlay" id="setupOverlay">
+  <div class="setup-box">
+    <h2>Connect to Supabase</h2>
+    <p>Enter your Supabase project credentials to get started. Your data will be stored securely in your own database.</p>
+    <div class="setup-note">
+      Create the required tables in your Supabase SQL Editor:<br><br>
+      <code>credit_cards</code> — for Unionbank, Maya, TikTok records<br>
+      <code>installments</code> — for installment transactions<br><br>
+      Copy the SQL schema from below and run it in your Supabase dashboard.
+    </div>
+    <label>Supabase Project URL</label>
+    <input type="text" id="sbUrl" placeholder="https://xxxxxxxxxxxx.supabase.co" />
+    <label>Supabase Anon Key</label>
+    <input type="text" id="sbKey" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." />
+    <button class="login-btn" onclick="initSupabase()" style="margin-top: 0;">Connect & Initialize</button>
+    <div id="setupError" class="login-error"></div>
+    <div style="margin-top: 16px; border-top: 1px solid var(--border); padding-top: 16px;">
+      <button class="cancel-btn" onclick="skipSupabase()" style="width:100%; text-align:center;">Use Local Storage (Demo Mode)</button>
+    </div>
+  </div>
+</div>
+
+<!-- LOGIN -->
+<div class="login-overlay" id="loginOverlay" style="display:none">
+  <div class="login-box">
+    <div class="brand">Ledger</div>
+    <div class="brand-sub">Debt Records</div>
+    <input type="text" id="loginUser" placeholder="Username" />
+    <input type="password" id="loginPass" placeholder="Password" />
+    <button class="login-btn" onclick="doLogin()">Sign In</button>
+    <div class="login-error" id="loginError"></div>
+    <div style="margin-top: 16px; font-size: 11px; color: var(--mocha);">Default: admin / admin123</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app" id="app">
+  <header>
+    <div class="logo">Ledger<span>.</span></div>
+    <div class="header-right">
+      <div class="db-status">
+        <div class="db-dot" id="dbDot"></div>
+        <span id="dbStatus">Local</span>
+      </div>
+      <span class="admin-badge">Admin</span>
+      <button class="logout-btn" onclick="doLogout()">Sign Out</button>
+    </div>
+  </header>
+
+  <div class="summary-bar" id="summaryBar">
+    <div class="summary-card">
+      <span class="summary-label">Total Debt</span>
+      <span class="summary-value danger" id="totalDebt">₱0.00</span>
+    </div>
+    <div class="summary-divider"></div>
+    <div class="summary-card">
+      <span class="summary-label">Total Paid</span>
+      <span class="summary-value" id="totalPaid">₱0.00</span>
+    </div>
+    <div class="summary-divider"></div>
+    <div class="summary-card">
+      <span class="summary-label">Remaining Balance</span>
+      <span class="summary-value danger" id="totalBalance">₱0.00</span>
+    </div>
+    <div class="summary-divider"></div>
+    <div class="summary-card">
+      <span class="summary-label">Total Entries</span>
+      <span class="summary-value" id="totalEntries">0</span>
+    </div>
+  </div>
+
+  <div class="tabs-container">
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('unionbank')">
+        Unionbank <span class="tab-count" id="countUnionbank">0</span>
+      </button>
+      <button class="tab-btn" onclick="switchTab('maya')">
+        Maya <span class="tab-count" id="countMaya">0</span>
+      </button>
+      <button class="tab-btn" onclick="switchTab('tiktok')">
+        TikTok <span class="tab-count" id="countTiktok">0</span>
+      </button>
+      <button class="tab-btn" onclick="switchTab('installments')">
+        Installments <span class="tab-count" id="countInstallments">0</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="content">
+    <!-- UNIONBANK -->
+    <div class="tab-panel active" id="panel-unionbank">
+      <div class="section-header">
+        <div class="section-title">Unionbank Credit Card <small>Manage your Unionbank charges</small></div>
+        <button class="add-btn" onclick="openModal('unionbank')">+ Add Entry</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Description</th>
+              <th>Date</th>
+              <th>Amount</th>
+              <th>Paid</th>
+              <th>Balance</th>
+              <th>Due Date</th>
+              <th>Status</th>
+              <th>Notes</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="tbody-unionbank">
+            <tr><td colspan="9"><div class="loading"><div class="spinner"></div> Loading...</div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- MAYA -->
+    <div class="tab-panel" id="panel-maya">
+      <div class="section-header">
+        <div class="section-title">Maya Credit Card <small>Manage your Maya charges</small></div>
+        <button class="add-btn" onclick="openModal('maya')">+ Add Entry</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Description</th>
+              <th>Date</th>
+              <th>Amount</th>
+              <th>Paid</th>
+              <th>Balance</th>
+              <th>Due Date</th>
+              <th>Status</th>
+              <th>Notes</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="tbody-maya">
+            <tr><td colspan="9"><div class="loading"><div class="spinner"></div> Loading...</div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TIKTOK -->
+    <div class="tab-panel" id="panel-tiktok">
+      <div class="section-header">
+        <div class="section-title">TikTok Credit Card <small>Manage your TikTok charges</small></div>
+        <button class="add-btn" onclick="openModal('tiktok')">+ Add Entry</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Description</th>
+              <th>Date</th>
+              <th>Amount</th>
+              <th>Paid</th>
+              <th>Balance</th>
+              <th>Due Date</th>
+              <th>Status</th>
+              <th>Notes</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="tbody-tiktok">
+            <tr><td colspan="9"><div class="loading"><div class="spinner"></div> Loading...</div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- INSTALLMENTS -->
+    <div class="tab-panel" id="panel-installments">
+      <div class="section-header">
+        <div class="section-title">Installment Transactions <small>Track your installment payments</small></div>
+        <button class="add-btn" onclick="openModal('installments')">+ Add Entry</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th>Merchant</th>
+              <th>Total Amount</th>
+              <th>Monthly</th>
+              <th>Months</th>
+              <th>Paid Months</th>
+              <th>Remaining</th>
+              <th>Start Date</th>
+              <th>Status</th>
+              <th>Notes</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="tbody-installments">
+            <tr><td colspan="11"><div class="loading"><div class="spinner"></div> Loading...</div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-backdrop" id="modalBackdrop" onclick="closeModalOutside(event)">
+  <div class="modal" id="modal">
+    <h3 id="modalTitle">Add Entry</h3>
+    <div id="modalBody"></div>
+    <div class="modal-actions">
+      <button class="cancel-btn" onclick="closeModal()">Cancel</button>
+      <button class="save-btn" onclick="saveEntry()">Save Entry</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============ STATE ============
+let supabase = null;
+let useLocal = false;
+let currentModal = { type: null, id: null };
+let data = { unionbank: [], maya: [], tiktok: [], installments: [] };
+
+// LOCAL STORAGE KEYS
+const LS_KEYS = {
+  unionbank: 'ledger_unionbank',
+  maya: 'ledger_maya',
+  tiktok: 'ledger_tiktok',
+  installments: 'ledger_installments'
+};
+
+// ============ SUPABASE SETUP ============
+function initSupabase() {
+  const url = document.getElementById('sbUrl').value.trim();
+  const key = document.getElementById('sbKey').value.trim();
+  const errEl = document.getElementById('setupError');
+
+  if (!url || !key) {
+    errEl.textContent = 'Please enter both URL and anon key.';
+    return;
+  }
+  if (!url.includes('supabase.co')) {
+    errEl.textContent = 'Please enter a valid Supabase URL.';
+    return;
+  }
+
+  try {
+    supabase = window.supabase.createClient(url, key);
+    localStorage.setItem('sb_url', url);
+    localStorage.setItem('sb_key', key);
+    document.getElementById('setupOverlay').style.display = 'none';
+    document.getElementById('loginOverlay').style.display = 'flex';
+    document.getElementById('dbDot').classList.add('connected');
+    document.getElementById('dbStatus').textContent = 'Supabase';
+    createTablesIfNeeded();
+  } catch(e) {
+    errEl.textContent = 'Failed to connect. Check your credentials.';
+  }
+}
+
+function skipSupabase() {
+  useLocal = true;
+  document.getElementById('setupOverlay').style.display = 'none';
+  document.getElementById('loginOverlay').style.display = 'flex';
+  document.getElementById('dbStatus').textContent = 'Local';
+}
+
+async function createTablesIfNeeded() {
+  if (!supabase) return;
+  // Try to read — if tables don't exist, show SQL hint
+  const { error } = await supabase.from('credit_cards').select('id').limit(1);
+  if (error && error.code === '42P01') {
+    showToast('Tables not found. Please run the SQL schema in Supabase.', true);
+  }
+}
+
+// ============ LOGIN ============
+const ADMIN = { user: 'admin', pass: 'admin123' };
+
+function doLogin() {
+  const u = document.getElementById('loginUser').value;
+  const p = document.getElementById('loginPass').value;
+  if (u === ADMIN.user && p === ADMIN.pass) {
+    document.getElementById('loginOverlay').style.display = 'none';
+    document.getElementById('app').classList.add('active');
+    loadAllData();
+  } else {
+    document.getElementById('loginError').textContent = 'Invalid credentials.';
+  }
+}
+
+document.getElementById('loginUser').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+document.getElementById('loginPass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+
+function doLogout() {
+  document.getElementById('app').classList.remove('active');
+  document.getElementById('loginOverlay').style.display = 'flex';
+  document.getElementById('loginUser').value = '';
+  document.getElementById('loginPass').value = '';
+}
+
+// ============ DATA LAYER ============
+function genId() {
+  return Date.now().toString(36) + Math.random().toString(36).substr(2);
+}
+
+function localGet(type) {
+  try { return JSON.parse(localStorage.getItem(LS_KEYS[type]) || '[]'); }
+  catch { return []; }
+}
+function localSet(type, arr) {
+  localStorage.setItem(LS_KEYS[type], JSON.stringify(arr));
+}
+
+async function loadAllData() {
+  if (useLocal || !supabase) {
+    data.unionbank = localGet('unionbank');
+    data.maya = localGet('maya');
+    data.tiktok = localGet('tiktok');
+    data.installments = localGet('installments');
+  } else {
+    const [cc, inst] = await Promise.all([
+      supabase.from('credit_cards').select('*').order('created_at', { ascending: false }),
+      supabase.from('installments').select('*').order('created_at', { ascending: false })
+    ]);
+    if (!cc.error) {
+      data.unionbank = cc.data.filter(r => r.card_type === 'unionbank');
+      data.maya = cc.data.filter(r => r.card_type === 'maya');
+      data.tiktok = cc.data.filter(r => r.card_type === 'tiktok');
+    }
+    if (!inst.error) data.installments = inst.data || [];
+  }
+  renderAll();
+}
+
+async function saveToDb(type, record, isEdit) {
+  if (useLocal || !supabase) {
+    let arr = localGet(type);
+    if (isEdit) {
+      arr = arr.map(r => r.id === record.id ? record : r);
+    } else {
+      record.id = genId();
+      arr.unshift(record);
+    }
+    localSet(type, arr);
+    return { data: record, error: null };
+  }
+
+  if (type === 'installments') {
+    if (isEdit) {
+      return await supabase.from('installments').update(record).eq('id', record.id).select().single();
+    } else {
+      return await supabase.from('installments').insert(record).select().single();
+    }
+  } else {
+    const dbRecord = { ...record, card_type: type };
+    if (isEdit) {
+      return await supabase.from('credit_cards').update(dbRecord).eq('id', record.id).select().single();
+    } else {
+      return await supabase.from('credit_cards').insert(dbRecord).select().single();
+    }
+  }
+}
+
+async function deleteFromDb(type, id) {
+  if (useLocal || !supabase) {
+    let arr = localGet(type).filter(r => r.id !== id);
+    localSet(type, arr);
+    return { error: null };
+  }
+  const table = type === 'installments' ? 'installments' : 'credit_cards';
+  return await supabase.from(table).delete().eq('id', id);
+}
+
+// ============ RENDER ============
+function fmt(n) {
+  return '₱' + parseFloat(n || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+function statusBadge(status) {
+  const map = {
+    unpaid: 'status-unpaid', partial: 'status-partial',
+    paid: 'status-paid', overdue: 'status-overdue'
+  };
+  return `<span class="status-badge ${map[status] || 'status-unpaid'}">${status || 'unpaid'}</span>`;
+}
+
+function renderCCTable(type) {
+  const tbody = document.getElementById(`tbody-${type}`);
+  const rows = data[type];
+  document.getElementById(`count${type.charAt(0).toUpperCase() + type.slice(1)}`).textContent = rows.length;
+
+  if (!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">📋</div><p>No entries yet. Click "+ Add Entry" to get started.</p></div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = rows.map(r => `
+    <tr>
+      <td>${r.description || '—'}</td>
+      <td>${r.date || '—'}</td>
+      <td class="amount-cell">${fmt(r.amount)}</td>
+      <td class="paid-cell">${fmt(r.paid)}</td>
+      <td class="balance-cell">${fmt((r.amount || 0) - (r.paid || 0))}</td>
+      <td>${r.due_date || '—'}</td>
+      <td>${statusBadge(r.status)}</td>
+      <td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--mocha)">${r.notes || '—'}</td>
+      <td>
+        <div class="action-btns">
+          <button class="edit-btn" onclick="openModal('${type}', '${r.id}')">Edit</button>
+          <button class="del-btn" onclick="deleteEntry('${type}', '${r.id}')">✕</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function renderInstallmentsTable() {
+  const tbody = document.getElementById('tbody-installments');
+  const rows = data.installments;
+  document.getElementById('countInstallments').textContent = rows.length;
+
+  if (!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="11"><div class="empty-state"><div class="empty-icon">📋</div><p>No installments yet. Click "+ Add Entry" to get started.</p></div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = rows.map(r => {
+    const remaining = (r.total_months || 0) - (r.paid_months || 0);
+    const remainingAmt = remaining * (r.monthly || 0);
+    return `<tr>
+      <td><strong style="font-weight:500">${r.item || '—'}</strong></td>
+      <td>${r.merchant || '—'}</td>
+      <td class="amount-cell">${fmt(r.total_amount)}</td>
+      <td style="color:var(--mocha)">${fmt(r.monthly)}</td>
+      <td style="text-align:center">${r.total_months || 0}</td>
+      <td style="text-align:center;color:var(--sage);font-weight:500">${r.paid_months || 0}</td>
+      <td class="balance-cell">${fmt(remainingAmt)}</td>
+      <td>${r.start_date || '—'}</td>
+      <td>${statusBadge(r.status)}</td>
+      <td style="max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--mocha)">${r.notes || '—'}</td>
+      <td>
+        <div class="action-btns">
+          <button class="edit-btn" onclick="openModal('installments', '${r.id}')">Edit</button>
+          <button class="del-btn" onclick="deleteEntry('installments', '${r.id}')">✕</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function renderSummary() {
+  const allCC = [...data.unionbank, ...data.maya, ...data.tiktok];
+  const instTotals = data.installments.map(r => ({
+    amount: r.total_amount || 0,
+    paid: (r.paid_months || 0) * (r.monthly || 0)
+  }));
+
+  const totalDebt = allCC.reduce((s, r) => s + (r.amount || 0), 0)
+    + data.installments.reduce((s, r) => s + (r.total_amount || 0), 0);
+  const totalPaid = allCC.reduce((s, r) => s + (r.paid || 0), 0)
+    + instTotals.reduce((s, r) => s + r.paid, 0);
+  const totalBalance = totalDebt - totalPaid;
+  const totalEntries = allCC.length + data.installments.length;
+
+  document.getElementById('totalDebt').textContent = fmt(totalDebt);
+  document.getElementById('totalPaid').textContent = fmt(totalPaid);
+  document.getElementById('totalBalance').textContent = fmt(totalBalance);
+  document.getElementById('totalEntries').textContent = totalEntries;
+}
+
+function renderAll() {
+  renderCCTable('unionbank');
+  renderCCTable('maya');
+  renderCCTable('tiktok');
+  renderInstallmentsTable();
+  renderSummary();
+}
+
+// ============ TABS ============
+let activeTab = 'unionbank';
+function switchTab(tab) {
+  activeTab = tab;
+  document.querySelectorAll('.tab-btn').forEach((b, i) => {
+    const tabs = ['unionbank', 'maya', 'tiktok', 'installments'];
+    b.classList.toggle('active', tabs[i] === tab);
+  });
+  document.querySelectorAll('.tab-panel').forEach(p => {
+    p.classList.toggle('active', p.id === `panel-${tab}`);
+  });
+}
+
+// ============ MODAL ============
+function openModal(type, id = null) {
+  currentModal = { type, id };
+  const isEdit = !!id;
+  document.getElementById('modalTitle').textContent = isEdit ? 'Edit Entry' : `Add Entry`;
+
+  let record = null;
+  if (isEdit) {
+    record = data[type].find(r => r.id === id);
+    if (!record) return;
+  }
+
+  const body = document.getElementById('modalBody');
+  if (type === 'installments') {
+    body.innerHTML = installmentForm(record);
+  } else {
+    body.innerHTML = creditCardForm(record);
+  }
+
+  // Auto-calc balance
+  if (type !== 'installments') {
+    const amtEl = body.querySelector('[name="amount"]');
+    const paidEl = body.querySelector('[name="paid"]');
+    if (amtEl && paidEl) {
+      const updateStatus = () => {
+        const a = parseFloat(amtEl.value) || 0;
+        const p = parseFloat(paidEl.value) || 0;
+        if (a > 0) {
+          const statusEl = body.querySelector('[name="status"]');
+          if (statusEl) {
+            if (p >= a) statusEl.value = 'paid';
+            else if (p > 0) statusEl.value = 'partial';
+            else statusEl.value = 'unpaid';
+          }
+        }
+      };
+      amtEl.addEventListener('input', updateStatus);
+      paidEl.addEventListener('input', updateStatus);
+    }
+  }
+
+  document.getElementById('modalBackdrop').classList.add('open');
+}
+
+function creditCardForm(r) {
+  return `
+    <div class="form-group"><label>Description</label>
+      <input name="description" value="${r?.description || ''}" placeholder="e.g. Online shopping, Restaurant" /></div>
+    <div class="form-row">
+      <div class="form-group"><label>Transaction Date</label>
+        <input type="date" name="date" value="${r?.date || ''}" /></div>
+      <div class="form-group"><label>Due Date</label>
+        <input type="date" name="due_date" value="${r?.due_date || ''}" /></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Amount (₱)</label>
+        <input type="number" name="amount" value="${r?.amount || ''}" placeholder="0.00" step="0.01" min="0" /></div>
+      <div class="form-group"><label>Amount Paid (₱)</label>
+        <input type="number" name="paid" value="${r?.paid || ''}" placeholder="0.00" step="0.01" min="0" /></div>
+    </div>
+    <div class="form-group"><label>Status</label>
+      <select name="status">
+        <option value="unpaid" ${r?.status === 'unpaid' ? 'selected' : ''}>Unpaid</option>
+        <option value="partial" ${r?.status === 'partial' ? 'selected' : ''}>Partial</option>
+        <option value="paid" ${r?.status === 'paid' ? 'selected' : ''}>Paid</option>
+        <option value="overdue" ${r?.status === 'overdue' ? 'selected' : ''}>Overdue</option>
+      </select></div>
+    <div class="form-group"><label>Notes</label>
+      <textarea name="notes" placeholder="Optional notes...">${r?.notes || ''}</textarea></div>
+  `;
+}
+
+function installmentForm(r) {
+  return `
+    <div class="form-group"><label>Item / Description</label>
+      <input name="item" value="${r?.item || ''}" placeholder="e.g. iPhone 15, Laptop" /></div>
+    <div class="form-group"><label>Merchant / Store</label>
+      <input name="merchant" value="${r?.merchant || ''}" placeholder="e.g. Lazada, SM" /></div>
+    <div class="form-row">
+      <div class="form-group"><label>Total Amount (₱)</label>
+        <input type="number" name="total_amount" value="${r?.total_amount || ''}" placeholder="0.00" step="0.01" min="0" /></div>
+      <div class="form-group"><label>Monthly Payment (₱)</label>
+        <input type="number" name="monthly" value="${r?.monthly || ''}" placeholder="0.00" step="0.01" min="0" /></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Total Months</label>
+        <input type="number" name="total_months" value="${r?.total_months || ''}" placeholder="12" min="1" /></div>
+      <div class="form-group"><label>Months Paid</label>
+        <input type="number" name="paid_months" value="${r?.paid_months || ''}" placeholder="0" min="0" /></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Start Date</label>
+        <input type="date" name="start_date" value="${r?.start_date || ''}" /></div>
+      <div class="form-group"><label>Status</label>
+        <select name="status">
+          <option value="unpaid" ${r?.status === 'unpaid' ? 'selected' : ''}>Unpaid</option>
+          <option value="partial" ${r?.status === 'partial' ? 'selected' : ''}>Partial</option>
+          <option value="paid" ${r?.status === 'paid' ? 'selected' : ''}>Paid</option>
+          <option value="overdue" ${r?.status === 'overdue' ? 'selected' : ''}>Overdue</option>
+        </select></div>
+    </div>
+    <div class="form-group"><label>Notes</label>
+      <textarea name="notes" placeholder="Optional notes...">${r?.notes || ''}</textarea></div>
+  `;
+}
+
+function closeModal() {
+  document.getElementById('modalBackdrop').classList.remove('open');
+  currentModal = { type: null, id: null };
+}
+
+function closeModalOutside(e) {
+  if (e.target.id === 'modalBackdrop') closeModal();
+}
+
+async function saveEntry() {
+  const { type, id } = currentModal;
+  if (!type) return;
+
+  const body = document.getElementById('modalBody');
+  const fields = {};
+  body.querySelectorAll('input, select, textarea').forEach(el => {
+    if (el.name) fields[el.name] = el.value;
+  });
+
+  // Validate
+  if (type === 'installments' && !fields.item) {
+    showToast('Please enter an item name.', true); return;
+  }
+  if (type !== 'installments' && !fields.description) {
+    showToast('Please enter a description.', true); return;
+  }
+
+  const record = { ...fields };
+  if (type !== 'installments') {
+    record.amount = parseFloat(record.amount) || 0;
+    record.paid = parseFloat(record.paid) || 0;
+  } else {
+    record.total_amount = parseFloat(record.total_amount) || 0;
+    record.monthly = parseFloat(record.monthly) || 0;
+    record.total_months = parseInt(record.total_months) || 0;
+    record.paid_months = parseInt(record.paid_months) || 0;
+  }
+
+  const isEdit = !!id;
+  if (isEdit) record.id = id;
+
+  const { error } = await saveToDb(type, record, isEdit);
+  if (error) {
+    showToast('Error saving: ' + error.message, true);
+    return;
+  }
+
+  await loadAllData();
+  closeModal();
+  showToast(isEdit ? 'Entry updated.' : 'Entry added.');
+}
+
+async function deleteEntry(type, id) {
+  if (!confirm('Delete this entry?')) return;
+  const { error } = await deleteFromDb(type, id);
+  if (error) { showToast('Error deleting.', true); return; }
+  await loadAllData();
+  showToast('Entry deleted.');
+}
+
+// ============ TOAST ============
+function showToast(msg, isError = false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast' + (isError ? ' error' : '');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ============ INIT ============
+window.addEventListener('load', () => {
+  const savedUrl = localStorage.getItem('sb_url');
+  const savedKey = localStorage.getItem('sb_key');
+  if (savedUrl && savedKey) {
+    try {
+      supabase = window.supabase.createClient(savedUrl, savedKey);
+      document.getElementById('dbDot').classList.add('connected');
+      document.getElementById('dbStatus').textContent = 'Supabase';
+      document.getElementById('setupOverlay').style.display = 'none';
+      document.getElementById('loginOverlay').style.display = 'flex';
+    } catch (e) {
+      // show setup
+    }
+  }
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+});
+</script>
+</body>
+</html>
