@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -644,8 +645,8 @@ function renderCreditWidget(type) {
   const limit = CREDIT_LIMITS[type];
   if (!limit) return;
   const rows = data[type] || [];
-  // Outstanding = sum of unpaid balances (amount minus what's been paid, floor 0)
-  const used  = rows.reduce((s, r) => { const b = (r.amount||0)-(r.paid||0); return s + (b > 0 ? b : 0); }, 0);
+  // Outstanding = sum of all amounts charged to the card
+  const used  = rows.reduce((s, r) => s + (r.amount || 0), 0);
   const avail = Math.max(limit - used, 0);
   const pct   = Math.min((used / limit) * 100, 100);
 
