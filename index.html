@@ -4,10 +4,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tracker</title>
+<title>📒Tracker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
 <style>
   :root {
     --bg:        #080C12;
@@ -17,10 +18,10 @@
     --surface2:  #1A2640;
     --border:    #1E2F47;
     --border2:   #243555;
-    --cyan:      #404fc2;
-    --cyan-dim:  #2e3a9e;
-    --cyan-glow: rgba(64,79,194,0.15);
-    --cyan-glow2:rgba(64,79,194,0.08);
+    --cyan:      #FFFFFF;
+    --cyan-dim:  #CCCCCC;
+    --cyan-glow: rgba(255,255,255,0.10);
+    --cyan-glow2:rgba(255,255,255,0.05);
     --green:     #00E5A0;
     --green-dim: #00AA78;
     --red:       #FF4B6E;
@@ -29,8 +30,8 @@
     --text:      #E2EAF4;
     --text2:     #7A94B0;
     --text3:     #3D5470;
-    --mono:      'Space Mono', monospace;
-    --sans:      'Syne', sans-serif;
+    --mono:      'Lexend', sans-serif;
+    --sans:      'Lexend', sans-serif;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -60,7 +61,7 @@
   @keyframes fadeSlide { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
   @keyframes pulseGlow {
     0%, 100% { box-shadow: 0 0 8px var(--cyan-glow); }
-    50%       { box-shadow: 0 0 20px rgba(64,79,194,0.28); }
+    50%       { box-shadow: 0 0 20px rgba(255,255,255,0.28); }
   }
   @keyframes scanline {
     0%   { transform: translateY(-100%); }
@@ -88,7 +89,7 @@
     width: 380px;
     text-align: center;
     position: relative;
-    box-shadow: 0 0 40px rgba(64,79,194,0.08), inset 0 1px 0 rgba(64,79,194,0.1);
+    box-shadow: 0 0 40px rgba(255,255,255,0.08), inset 0 1px 0 rgba(255,255,255,0.1);
   }
   .login-box::before {
     content: '';
@@ -103,7 +104,7 @@
     color: var(--cyan);
     letter-spacing: 2px;
     margin-bottom: 4px;
-    text-shadow: 0 0 20px rgba(64,79,194,0.5);
+    text-shadow: 0 0 20px rgba(255,255,255,0.5);
   }
   .login-box .brand-sub {
     font-size: 10px;
@@ -143,7 +144,7 @@
     margin-top: 4px;
     text-transform: uppercase;
   }
-  .login-btn:hover { background: var(--cyan); color: var(--bg); box-shadow: 0 0 20px rgba(64,79,194,0.3); }
+  .login-btn:hover { background: var(--cyan); color: var(--bg); box-shadow: 0 0 20px rgba(255,255,255,0.3); }
   .login-error {
     color: var(--red);
     font-size: 11px;
@@ -166,7 +167,7 @@
     padding: 40px;
     width: 460px;
     position: relative;
-    box-shadow: 0 0 40px rgba(64,79,194,0.08);
+    box-shadow: 0 0 40px rgba(255,255,255,0.08);
   }
   .setup-box::before {
     content: '';
@@ -249,7 +250,7 @@
     top: 0;
     z-index: 10;
     backdrop-filter: blur(12px);
-    box-shadow: 0 1px 0 rgba(64,79,194,0.06);
+    box-shadow: 0 1px 0 rgba(255,255,255,0.06);
   }
   .logo {
     font-family: var(--mono);
@@ -258,7 +259,7 @@
     color: var(--cyan);
     letter-spacing: 3px;
     text-transform: uppercase;
-    text-shadow: 0 0 16px rgba(64,79,194,0.4);
+    text-shadow: 0 0 16px rgba(255,255,255,0.4);
   }
   .logo span { color: var(--text3); font-weight: 400; }
   .header-right { display: flex; align-items: center; gap: 14px; }
@@ -269,7 +270,7 @@
     text-transform: uppercase;
     color: var(--cyan);
     background: var(--cyan-glow);
-    border: 1px solid rgba(64,79,194,0.2);
+    border: 1px solid rgba(255,255,255,0.2);
     padding: 4px 10px;
     border-radius: 2px;
     font-family: var(--mono);
@@ -345,7 +346,7 @@
   .tab-btn.active {
     color: var(--cyan);
     border-bottom-color: var(--cyan);
-    text-shadow: 0 0 10px rgba(64,79,194,0.4);
+    text-shadow: 0 0 10px rgba(255,255,255,0.4);
   }
   .tab-count {
     font-size: 9px;
@@ -359,7 +360,7 @@
   .tab-btn.active .tab-count {
     background: var(--cyan-glow);
     color: var(--cyan);
-    border-color: rgba(64,79,194,0.3);
+    border-color: rgba(255,255,255,0.3);
   }
 
   /* ══════════════════ CONTENT ══════════════════ */
@@ -419,7 +420,7 @@
     font-weight: 700;
     letter-spacing: 1px;
     text-transform: uppercase;
-    text-shadow: 0 0 10px rgba(64,79,194,0.3);
+    text-shadow: 0 0 10px rgba(255,255,255,0.3);
   }
   .section-title small {
     font-family: var(--sans);
@@ -446,7 +447,7 @@
     transition: all 0.2s;
     display: flex; align-items: center; gap: 6px;
   }
-  .add-btn:hover { background: var(--cyan); color: var(--bg); box-shadow: 0 0 16px rgba(64,79,194,0.25); }
+  .add-btn:hover { background: var(--cyan); color: var(--bg); box-shadow: 0 0 16px rgba(255,255,255,0.25); }
 
   /* ══════════════════ TABLE ══════════════════ */
   .table-wrap {
@@ -474,7 +475,7 @@
     transition: background 0.12s;
   }
   tbody tr:last-child { border-bottom: none; }
-  tbody tr:hover { background: rgba(64,79,194,0.04); }
+  tbody tr:hover { background: rgba(255,255,255,0.04); }
   td {
     padding: 12px 14px;
     font-size: 12px;
@@ -567,7 +568,7 @@
   /* ── ROW CHECKBOX ── */
   .row-check { width: 14px; height: 14px; cursor: pointer; accent-color: var(--cyan); flex-shrink: 0; }
   thead th.check-col, td.check-col { width: 38px; padding: 10px 6px 10px 14px; }
-  tr.selected-row { background: rgba(64,79,194,0.06) !important; }
+  tr.selected-row { background: rgba(255,255,255,0.06) !important; }
 
   .empty-state { text-align: center; padding: 48px 24px; color: var(--text3); }
   .empty-state p { font-size: 12px; margin-top: 8px; font-family: var(--mono); }
@@ -595,7 +596,7 @@
     transform: translateY(10px);
     transition: transform 0.2s;
     border: 1px solid var(--border2);
-    box-shadow: 0 0 60px rgba(0,0,0,0.5), 0 0 30px rgba(64,79,194,0.05);
+    box-shadow: 0 0 60px rgba(0,0,0,0.5), 0 0 30px rgba(255,255,255,0.05);
     position: relative;
   }
   .modal::before {
@@ -612,7 +613,7 @@
     margin-bottom: 22px;
     letter-spacing: 2px;
     text-transform: uppercase;
-    text-shadow: 0 0 10px rgba(64,79,194,0.3);
+    text-shadow: 0 0 10px rgba(255,255,255,0.3);
   }
   .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .form-group { margin-bottom: 14px; }
@@ -677,14 +678,14 @@
     cursor: pointer;
     transition: all 0.2s;
   }
-  .save-btn:hover { background: var(--cyan); color: var(--bg); box-shadow: 0 0 16px rgba(64,79,194,0.25); }
+  .save-btn:hover { background: var(--cyan); color: var(--bg); box-shadow: 0 0 16px rgba(255,255,255,0.25); }
 
   /* ══════════════════ TOAST ══════════════════ */
   .toast {
     position: fixed; bottom: 24px; right: 24px;
     background: var(--surface2);
     color: var(--cyan);
-    border: 1px solid rgba(64,79,194,0.3);
+    border: 1px solid rgba(255,255,255,0.3);
     padding: 11px 18px;
     border-radius: 3px;
     font-size: 11px;
@@ -692,7 +693,7 @@
     letter-spacing: 0.5px;
     opacity: 0; transform: translateY(8px);
     transition: all 0.3s; z-index: 999; pointer-events: none;
-    box-shadow: 0 0 20px rgba(64,79,194,0.1);
+    box-shadow: 0 0 20px rgba(255,255,255,0.1);
   }
   .toast.show { opacity: 1; transform: translateY(0); }
   .toast.error { color: var(--red); border-color: rgba(255,75,110,0.3); box-shadow: 0 0 20px rgba(255,75,110,0.1); }
@@ -743,17 +744,18 @@
 <div class="setup-overlay" id="setupOverlay">
   <div class="setup-box">
     <h2>Connect to Supabase</h2>
-    <p>Enter your Supabase project credentials to get started. Your data will be stored securely in your own database.</p>
-    <div class="setup-note">
+<p>Enter your Supabase project credentials to get started. Your data will be stored securely in your own database.</p>
+    <!--    <div class="setup-note">
       Create the required tables in your Supabase SQL Editor:<br><br>
       <code>credit_cards</code> — for Unionbank, Maya, TikTok records<br>
       <code>installments</code> — for installment transactions<br><br>
       Copy the SQL schema from below and run it in your Supabase dashboard.
     </div>
-    <label>Supabase Project URL</label>
-    <input type="text" id="sbUrl" placeholder="https://xxxxxxxxxxxx.supabase.co" />
+    -->
+    <label>URL</label>
+    <input type="text" id="sbUrl" placeholder="API URL" />
     <label>Supabase Anon Key</label>
-    <input type="text" id="sbKey" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." />
+    <input type="text" id="sbKey" placeholder="API URL" />
     <button class="login-btn" onclick="initSupabase()" style="margin-top: 0;">Connect & Initialize</button>
     <div id="setupError" class="login-error"></div>
     <div style="margin-top: 16px; border-top: 1px solid var(--border); padding-top: 16px;">
@@ -765,20 +767,20 @@
 <!-- LOGIN -->
 <div class="login-overlay" id="loginOverlay" style="display:none">
   <div class="login-box">
-    <div class="brand">NEURAL<span style="color:var(--cyan)">DEBT</span></div>
+    <div class="brand">Debt<span style="color:var(--cyan)">Ledger</span></div>
     <div class="brand-sub">// AI Debt Intelligence System</div>
     <input type="text" id="loginUser" placeholder="Username" />
     <input type="password" id="loginPass" placeholder="Password" />
     <button class="login-btn" onclick="doLogin()">Sign In</button>
     <div class="login-error" id="loginError"></div>
-    <div style="margin-top: 16px; font-size: 10px; color: var(--text3); font-family: var(--mono); letter-spacing: 1px;">DEFAULT: admin / admin123</div>
+    <div style="margin-top: 16px; font-size: 10px; color: var(--text3); font-family: var(--mono); letter-spacing: 1px;">DEFAULT: Admin / admin123</div>
   </div>
 </div>
 
 <!-- APP -->
 <div class="app" id="app">
   <header>
-    <div class="logo">NEURAL<span>DEBT</span></div>
+    <div class="logo">Debt<span>Ledger</span></div>
     <div class="header-right">
       <div class="db-status">
         <div class="db-dot" id="dbDot"></div>
@@ -1105,7 +1107,7 @@ async function createTablesIfNeeded() {
 }
 
 // ============ LOGIN ============
-const ADMIN = { user: 'admin', pass: 'admin123' };
+const ADMIN = { user: 'Persona', pass: 'Hominem_20229850' };
 
 function showApp() {
   document.getElementById('loginOverlay').style.display = 'none';
@@ -1654,7 +1656,7 @@ document.addEventListener('keydown', e => {
 (function() {
   const canvas = document.getElementById('geo-canvas');
   const ctx = canvas.getContext('2d');
-  const ACCENT = '64,79,194';
+  const ACCENT = '255,255,255';
   let W, H, shapes, particles, nodes;
 
   function resize() {
