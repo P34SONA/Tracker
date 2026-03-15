@@ -4,11 +4,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>📒Tracker</title>
+<title>Tracker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <link rel="icon" type="image/x-icon" href="ledger.png">
+  <link rel="icon" href="ledger.png">
 <style>
   :root {
     --bg:        #080C12;
@@ -767,8 +767,10 @@
 <!-- LOGIN -->
 <div class="login-overlay" id="loginOverlay" style="display:none">
   <div class="login-box">
-    <div class="brand">Debt<span style="color:var(--cyan)">Ledger</span></div>
+    
+  <!--  <div class="brand">Debt<span style="color:var(--cyan)">Ledger</span></div>
     <div class="brand-sub">// AI Debt Intelligence System</div>
+    -->
     <input type="text" id="loginUser" placeholder="Username" />
     <input type="password" id="loginPass" placeholder="Password" />
     <button class="login-btn" onclick="doLogin()">Sign In</button>
@@ -780,7 +782,7 @@
 <!-- APP -->
 <div class="app" id="app">
   <header>
-    <div class="logo">Debt<span>Ledger</span></div>
+    <div class="logo">📒 Debt<span>Ledger</span></div>
     <div class="header-right">
       <div class="db-status">
         <div class="db-dot" id="dbDot"></div>
