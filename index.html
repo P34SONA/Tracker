@@ -575,7 +575,7 @@ function doLogin() {
   const u = document.getElementById('loginUser').value;
   const p = document.getElementById('loginPass').value;
   if (u === ADMIN.user && p === ADMIN.pass) { localStorage.setItem(SESSION_KEY, 'true'); showApp(); }
-  else document.getElementById('loginError').textContent = 'Invalid credentials.';
+  else document.getElementById('loginError').textContent = 'HAHAHAHA Try Again.';
 }
 document.getElementById('loginUser').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
 document.getElementById('loginPass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
