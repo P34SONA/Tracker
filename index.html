@@ -1,8 +1,9 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Tracker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -327,11 +328,191 @@
   .db-dot.connected{background:var(--cyan);box-shadow:0 0 6px rgba(174,214,220,0.7);animation:pulseGlow 2s ease-in-out infinite}
   .db-dot.error{background:var(--red)}
 
+  /* ══════════════════════════════════════════════════
+     RESPONSIVE — Auto-resize for all screen sizes
+  ══════════════════════════════════════════════════ */
+
+  /* ── Base fluid layout ── */
+  html { font-size: 16px; }
+
+  /* ── Tablet (≤1024px) ── */
+  @media(max-width:1024px){
+    header,.summary-bar,.tabs-container,.content{ padding-left:20px; padding-right:20px; }
+    .summary-bar{ gap:16px; }
+    .summary-value{ font-size:18px; }
+    .tab-btn{ padding:10px 16px; font-size:10px; }
+    .content{ padding:18px 20px; }
+  }
+
+  /* ── Large Phone (≤768px) ── */
   @media(max-width:768px){
-    header,.summary-bar,.tabs-container,.content{padding-left:16px;padding-right:16px}
-    .form-row{grid-template-columns:1fr}
-    .summary-bar{flex-wrap:wrap;gap:12px}
-    table{display:block;overflow-x:auto}
+    html{ font-size:14px; }
+
+    /* Header */
+    header{ padding:0 16px; height:54px; }
+    .logo{ font-size:13px; letter-spacing:2px; }
+    .admin-badge{ display:none; }
+    .logout-btn{ font-size:9px; padding:4px 10px; }
+    .db-status{ font-size:8px; padding:3px 8px; }
+
+    /* Summary bar — 2×2 grid */
+    .summary-bar{
+      padding:12px 16px;
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+    }
+    .summary-divider{ display:none; }
+    .summary-card{ align-items:center; }
+    .summary-label{ font-size:8px; letter-spacing:1px; }
+    .summary-value{ font-size:16px; }
+
+    /* Tabs — scrollable row */
+    .tabs-container{ padding:12px 16px 0; }
+    .tabs{ gap:2px; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+    .tabs::-webkit-scrollbar{ display:none; }
+    .tab-btn{ padding:9px 14px; font-size:9px; letter-spacing:0.5px; white-space:nowrap; flex-shrink:0; }
+    .tab-count{ font-size:8px; padding:1px 5px; }
+
+    /* Content */
+    .content{ padding:14px 16px; }
+
+    /* Panel toolbar — stack vertically */
+    .panel-toolbar{ flex-direction:column; align-items:stretch; gap:10px; }
+    .search-wrap{ max-width:100%; width:100%; }
+    .tab-totals{ justify-content:space-between; width:100%; }
+    .tab-total-value{ font-size:12px; }
+    .tab-total-label{ font-size:8px; }
+
+    /* Section header */
+    .section-title{ font-size:11px; }
+    .section-title small{ display:block; margin-left:0; margin-top:2px; font-size:10px; }
+    .add-btn{ font-size:10px; padding:7px 14px; }
+
+    /* Credit widget */
+    .ccw-col-val{ font-size:16px; }
+    .ccw-name{ font-size:9px; }
+    .ccw-limit-badge{ font-size:8px; }
+
+    /* Table — horizontal scroll */
+    .table-wrap{ border-radius:8px; }
+    table{ display:block; overflow-x:auto; -webkit-overflow-scrolling:touch; width:100%; }
+    thead th{ font-size:8px; padding:9px 10px; white-space:nowrap; letter-spacing:0.8px; }
+    td{ font-size:11px; padding:10px 10px; white-space:nowrap; }
+
+    /* Modal — full screen bottom sheet */
+    .modal-backdrop{ align-items:flex-end; }
+    .modal{
+      width:100%; max-width:100%; border-radius:16px 16px 0 0;
+      padding:24px 20px; max-height:92vh;
+      transform:translateY(100%);
+    }
+    .modal-backdrop.open .modal{ transform:translateY(0); }
+    .form-row{ grid-template-columns:1fr 1fr; gap:10px; }
+    .form-group input,.form-group select,.form-group textarea{
+      font-size:16px; /* prevents iOS auto-zoom */
+      padding:10px 12px;
+    }
+
+    /* Bulk bar */
+    .bulk-bar{ flex-wrap:wrap; gap:8px; }
+    .bulk-info{ font-size:10px; }
+    .bulk-del-btn,.bulk-cancel-btn{ font-size:9px; padding:5px 10px; }
+
+    /* Login box */
+    .login-box{ width:92%; padding:36px 24px; }
+
+    /* Setup box */
+    .setup-box{ width:92%; padding:28px 20px; }
+  }
+
+  /* ── Standard Phone (≤480px) ── */
+  @media(max-width:480px){
+    html{ font-size:13px; }
+
+    header{ height:50px; }
+    .logo{ font-size:12px; letter-spacing:1.5px; }
+
+    /* Summary — 2×2 compact */
+    .summary-bar{ padding:10px 14px; gap:8px; }
+    .summary-value{ font-size:15px; }
+    .summary-label{ font-size:7.5px; }
+
+    .tabs-container{ padding:10px 14px 0; }
+    .tab-btn{ padding:8px 10px; font-size:8.5px; }
+
+    .content{ padding:12px 14px; }
+
+    /* Section title wraps */
+    .section-header{ flex-wrap:wrap; gap:8px; }
+    .add-btn{ width:100%; justify-content:center; }
+
+    /* Credit widget compact */
+    .ccw-col-val{ font-size:14px; }
+    .ccw-row{ gap:8px; }
+
+    thead th{ font-size:7.5px; padding:8px 8px; }
+    td{ font-size:10px; padding:9px 8px; }
+
+    .form-row{ grid-template-columns:1fr; gap:0; }
+
+    /* Full-width modal actions */
+    .modal-actions{ flex-direction:row; }
+    .cancel-btn,.save-btn{ flex:1; text-align:center; justify-content:center; }
+  }
+
+  /* ── Small Phone (≤375px — iPhone SE, Galaxy A) ── */
+  @media(max-width:375px){
+    html{ font-size:12px; }
+
+    header{ padding:0 12px; height:48px; }
+    .logo{ font-size:11px; letter-spacing:1px; }
+    .logout-btn{ font-size:8px; padding:3px 8px; }
+
+    .summary-bar{ padding:8px 12px; }
+    .summary-value{ font-size:14px; }
+
+    .tabs-container{ padding:8px 12px 0; }
+    .tab-btn{ padding:7px 9px; font-size:8px; }
+
+    .content{ padding:10px 12px; }
+    .add-btn{ font-size:9px; padding:6px 12px; }
+
+    thead th{ font-size:7px; padding:7px 7px; }
+    td{ font-size:9.5px; padding:8px 7px; }
+
+    .login-box{ padding:28px 18px; }
+    .setup-box{ padding:22px 16px; }
+    .modal{ padding:20px 16px; }
+  }
+
+  /* ── Extra Small (≤320px — very old/small phones) ── */
+  @media(max-width:320px){
+    html{ font-size:11px; }
+    .logo{ font-size:10px; }
+    .summary-value{ font-size:13px; }
+    thead th{ font-size:6.5px; padding:6px 6px; }
+    td{ font-size:9px; padding:7px 6px; }
+  }
+
+  /* ── Landscape mobile ── */
+  @media(max-height:500px) and (orientation:landscape){
+    header{ height:44px; }
+    .summary-bar{ padding:8px 16px; }
+    .summary-value{ font-size:14px; }
+    .tabs-container{ padding:8px 16px 0; }
+    .content{ padding:10px 16px; }
+    .modal{ max-height:96vh; }
+  }
+
+  /* ── Safe area for notched phones (iPhone X+) ── */
+  @supports(padding:max(0px)){
+    header{ padding-left:max(32px, env(safe-area-inset-left)); padding-right:max(32px, env(safe-area-inset-right)); padding-top:env(safe-area-inset-top); }
+    .modal{ padding-bottom:max(32px, env(safe-area-inset-bottom)); }
+    .content{ padding-bottom:max(22px, env(safe-area-inset-bottom)); }
+    @media(max-width:768px){
+      header{ padding-left:max(16px, env(safe-area-inset-left)); padding-right:max(16px, env(safe-area-inset-right)); }
+    }
   }
 </style>
 </head>
